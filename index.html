@@ -297,6 +297,7 @@ function abreSenha(o){
 }
 function entrar(){
   var o=esc_, s=$("sen").value.trim(), er=$("sen-err"); er.hidden=true; if(!o) return;
+  if(!o.k){ er.textContent="A lista de nomes está desatualizada. Volte, espere um instante e escolha seu nome de novo."; er.hidden=false; nomes=null; carregaNomes(); return; }
   if(!s){ er.textContent="Digite a sua matrícula."; er.hidden=false; return; }
   if(navigator.onLine===false){ er.textContent="Sem internet. No primeiro acesso é preciso estar com sinal."; er.hidden=false; return; }
   $("sen-ok").disabled=true; $("sen-ok").textContent="Verificando…";
@@ -324,7 +325,7 @@ function desenhaOpcoes(){
 function contaPeriodo(off){
   var P=periodo(off||0), d=0, vi=nomes&&eu?(nomes.lista||[]).filter(function(o){return o.k===eu.k})[0]:null;
   var loc=fila.filter(function(x){ return x.k===eu.k&&x.dia>=P.ini&&x.dia<=P.fim; }).length;
-  if(!off&&vi&&nomes.ini===P.ini) d=vi.d||0;
+  if(!off&&vi) d=vi.d||0;   // a lista traz os DNAs do período atual (calculados pelo robô)
   return {n:Math.max(d,loc),P:P};
 }
 function desenhaForm(){
@@ -475,6 +476,8 @@ function inicia(){
   if(!URL_API||/COLE_AQUI/i.test(URL_API)){ mostra("conf"); return; }
   abre().then(function(){ return Promise.all([kvGet("codigo"),kvGet("eu"),kvGet("nomes"),kvGet("rascunho"),filaTodos(),kvGet("fotos")]); }).then(function(r){
     codigo=r[0]||""; eu=(r[1]&&r[1].tok)?r[1]:null; nomes=r[2]||null; fila=r[4]||[]; fotos=r[5]||{}; var ras=r[3];
+    // lista guardada pela versão antiga (sem a chave "k" de cada pessoa): descarta e baixa de novo (senão o login diz "sem acesso")
+    if(nomes&&!(nomes.lista||[]).every(function(x){return x&&x.k})) nomes=null;
     if(ras){ sel.area=ras.area||""; sel.fab=ras.fab||""; $("local").value=ras.local||""; $("desc").value=ras.desc||""; $("acoes").value=ras.acoes||""; }
     dicaInstalar();
     if(!codigo){ mostra("codigo"); $("cod").focus();
