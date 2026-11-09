@@ -70,6 +70,13 @@ textarea{min-height:104px;resize:vertical}
 .tag.az{background:#e8eefb;color:var(--navy)}.tag.vd{background:var(--greenbg);color:#0f6b41}
 .per{margin-top:14px;padding:12px 14px;border-radius:14px;background:var(--bg)}
 .per .l{display:flex;justify-content:space-between;gap:8px;font-size:14px;color:var(--fg2);margin-bottom:8px}.per .l b{color:var(--fg)}
+.per .mais{margin-top:9px;font-size:13px;font-weight:700;color:var(--green)}
+.tot{text-align:center;padding:22px 18px 20px}.tot .sel{text-align:left;margin-bottom:6px}
+.anel{position:relative;width:176px;height:176px;margin:10px auto 6px}.anel svg{width:100%;height:100%;transform:rotate(-90deg)}
+.anel .tr{fill:none;stroke:#e6ebf4;stroke-width:14}.anel .pr{fill:none;stroke:var(--navy3);stroke-width:14;stroke-linecap:round;transition:stroke-dashoffset .5s}.anel.ok .pr{stroke:var(--green)}
+.anel .nm{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}.anel .nm b{font-size:56px;line-height:1;letter-spacing:-.03em;color:var(--navy)}.anel.ok .nm b{color:var(--green)}.anel .nm small{margin-top:6px;font-size:12px;line-height:1.2;color:var(--fg2);font-weight:600;max-width:100px;text-align:center}
+.tot-rot{font-size:15px;font-weight:700;color:var(--fg)}
+.chipmeta{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:7px 14px;border-radius:999px;font-size:13.5px;font-weight:800;background:#e8eefb;color:var(--navy)}.chipmeta.ok{background:var(--greenbg);color:#0f6b41}
 .bar{height:10px;border-radius:99px;background:#dde3ee;overflow:hidden}.bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green),#43c98b);transition:width .35s}
 .fabl{display:flex;align-items:center;gap:12px;border:2px dashed var(--line);border-radius:14px;padding:12px 14px;background:#fafbfe}
 .fabl .ico{color:var(--navy3);width:24px;height:24px}.fabl b{display:block;font-size:15.5px;line-height:1.25}.fabl small{color:var(--fg3);font-size:12.5px}
@@ -182,15 +189,17 @@ textarea{min-height:104px;resize:vertical}
   </section>
 
   <section id="s-lista" hidden>
-    <div class="card">
-      <h1>Meus registros</h1>
-      <p class="sub" id="l-sub" style="margin-bottom:12px"></p>
-      <label class="lb" for="l-per">Período</label>
-      <div class="sel"><select id="l-per" aria-label="Período"></select><svg class="ico"><use href="#i-baixo"/></svg></div>
-      <div class="res3" id="l-res"></div>
+    <div class="card tot">
+      <label class="lb" for="l-per" id="l-per-lb" style="text-align:left">Período</label>
+      <div class="sel" id="l-per-w"><select id="l-per" aria-label="Período"></select><svg class="ico"><use href="#i-baixo"/></svg></div>
+      <div class="anel" id="l-anel"></div>
+      <div class="tot-rot" id="l-rot"></div>
+      <div id="l-meta"></div>
+      <p class="sub" id="l-sub" style="margin:12px 0 0"></p>
       <button class="btn sec" id="l-env" hidden style="margin-top:14px">Enviar agora</button>
     </div>
-    <div id="l-itens"></div>
+    <button class="lnk" id="l-ver" type="button" style="display:block;margin:0 auto 10px">Ver detalhes dos registros</button>
+    <div id="l-itens" hidden></div>
   </section>
 </main>
 <nav class="tabs" id="tabs" hidden>
@@ -206,7 +215,7 @@ var CFG=window.DNA_CFG||{}, URL_API=(CFG.url||"").trim(), $=function(i){return d
 var AREAS=["SILVICULTURA","COLHEITA","LOGÍSTICA","OUTROS"];
 var FAB={rrp:"SUZANO - RIBAS DO RIO PARDO (PROJETO CERRADO)",tls:"SUZANO - TRÊS LAGOAS (PROJETO HORIZONTE)"};
 var FABC={rrp:"Ribas do Rio Pardo",tls:"Três Lagoas"};
-var db=null, mem={kv:{},fila:{}}, semBanco=false, codigo="", eu=null, nomes=null, fotos={}, fv="", fotosAt=0, carFot=false, fila=[], sel={area:"",fab:""}, esc_=null, sincEm=false, tentativa=0, tRetry=null, tela="", perOff=0, meusCache={};
+var db=null, mem={kv:{},fila:{}}, semBanco=false, codigo="", eu=null, nomes=null, fotos={}, fv="", fotosAt=0, carFot=false, fila=[], sel={area:"",fab:""}, esc_=null, sincEm=false, tentativa=0, tRetry=null, tela="", perSel="", meusAll=null;
 
 /* ---------- armazenamento (IndexedDB; se o navegador bloquear, guarda só enquanto a página estiver aberta) ---------- */
 function abre(){return new Promise(function(ok){
@@ -237,11 +246,9 @@ function icone(n){return '<svg class="ico"><use href="#i-'+n+'"/></svg>';}
 function mostra(t){ tela=t; ["s-conf","s-codigo","s-quem","s-senha","s-form","s-ok","s-lista"].forEach(function(s){ $(s).hidden=(s!=="s-"+t); });
   $("tabs").hidden=!(t==="form"||t==="lista"||t==="ok"); $("t-novo").setAttribute("aria-current",t==="lista"?"false":"page"); $("t-lista").setAttribute("aria-current",t==="lista"?"page":"false"); window.scrollTo(0,0); }
 /* período padrão do DNA: do dia 21 ao dia 20 do mês seguinte (off=0 atual, 1 anterior…) */
-function periodo(off){
-  var d=new Date(), y=d.getFullYear(), m=d.getMonth()+(d.getDate()>=21?0:-1)-(off||0), a=new Date(y,m,21), b=new Date(y,m+1,20);
-  var MES=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
-  return {ini:isoD(a),fim:isoD(b),rot:p2(a.getDate())+"/"+p2(a.getMonth()+1)+" a "+p2(b.getDate())+"/"+p2(b.getMonth()+1)+"/"+b.getFullYear(),mes:MES[b.getMonth()]+"/"+b.getFullYear()};
-}
+function mkPer(a,b){ return {ini:isoD(a),fim:isoD(b),rot:p2(a.getDate())+"/"+p2(a.getMonth()+1)+" a "+p2(b.getDate())+"/"+p2(b.getMonth()+1)+"/"+b.getFullYear()}; }
+function periodo(off){ var d=new Date(), m=d.getMonth()+(d.getDate()>=21?0:-1)-(off||0); return mkPer(new Date(d.getFullYear(),m,21),new Date(d.getFullYear(),m+1,20)); }
+function periodoDe(dia){ var a=String(dia||"").split("-"); if(a.length<3||!+a[0]) return null; var m=+a[1]-1+(+a[2]>=21?0:-1); return mkPer(new Date(+a[0],m,21),new Date(+a[0],m+1,20)); }
 function avatar(cls,k,nome){
   var f=k&&fotos[k]; return '<div class="av'+(cls?" "+cls:"")+'">'+(f?'<img alt="" src="'+esc(f)+'">':esc(ini(nome)))+'</div>';
 }
@@ -321,7 +328,7 @@ function entrar(){
   $("sen-ok").disabled=true; $("sen-ok").textContent="Verificando…";
   api("POST",null,{acao:"entrar",codigo:codigo,k:o.k,senha:s}).then(function(r){
     $("sen-ok").disabled=false; $("sen-ok").textContent="Entrar";
-    if(r&&r.ok){ eu={k:r.k,n:r.n,f:r.f,c:r.c,tok:r.tok}; sel.fab=r.f&&FAB[r.f]?r.f:""; meusCache={};
+    if(r&&r.ok){ eu={k:r.k,n:r.n,f:r.f,c:r.c,tok:r.tok}; sel.fab=r.f&&FAB[r.f]?r.f:""; meusAll=null;
       return Promise.all([kvSet("eu",eu),fotos[o.k]?kvSet("fotos",fotos):Promise.resolve()]).then(function(){ desenhaForm(); mostra("form"); sincronizar(); carregaNomes().then(function(){ if(tela==="form") desenhaForm(); }); }); }
     var m={senha:"Senha incorreta."+(r&&r.restam!=null?" Restam "+r.restam+(r.restam===1?" tentativa.":" tentativas."):""),bloqueado:"Muitas tentativas. Aguarde 10 minutos e tente de novo.",sem_acesso:"Você ainda não tem acesso. Fale com o responsável.",codigo:"O código de acesso mudou. Abra o link novo que o responsável enviou."};
     er.textContent=(r&&m[r.erro])||"Não consegui entrar agora. Tente de novo."; er.hidden=false;
@@ -330,14 +337,14 @@ function entrar(){
 }
 function sair(){
   if(!confirm("Sair deste celular?\n\nOs registros que ainda não foram enviados continuam guardados e saem quando você entrar de novo.")) return;
-  eu=null; sel.fab=""; meusCache={}; kvDel("eu").then(function(){ $("q").value=""; $("res").innerHTML=""; mostra("quem"); });
+  eu=null; sel.fab=""; meusAll=null; kvDel("eu").then(function(){ $("q").value=""; $("res").innerHTML=""; mostra("quem"); });
 }
 
 /* ---------- formulário ---------- */
 function desenhaOpcoes(){
   $("o-area").innerHTML=AREAS.map(function(a){return '<button type="button" class="opt" data-a="'+a+'" aria-pressed="'+(sel.area===a)+'">'+a+'</button>'}).join("");
   var auto=!!(eu&&eu.f&&FAB[eu.f]);
-  $("fab-auto").hidden=!auto; $("o-fab").hidden=auto; if(auto){ sel.fab=eu.f; $("fab-t").textContent=FAB[eu.f]; $("c-fab").querySelector(".lb").innerHTML="Fábrica em que está atuando"; }
+  $("c-fab").hidden=auto; $("fab-auto").hidden=true; $("o-fab").hidden=auto; if(auto){ sel.fab=eu.f; }
   else{ $("c-fab").querySelector(".lb").innerHTML='Fábrica em que está atuando <em>*</em>'; $("o-fab").innerHTML=Object.keys(FAB).map(function(k){return '<button type="button" class="opt" data-f="'+k+'" aria-pressed="'+(sel.fab===k)+'">'+FABC[k]+'<small style="display:block;font-weight:500;opacity:.8;font-size:12.5px">'+esc(FAB[k])+'</small></button>'}).join(""); }
 }
 function contaPeriodo(off){
@@ -351,8 +358,8 @@ function desenhaForm(){
   $("eu-av").outerHTML=avatar("m",eu.k,eu.n).replace('class="av m','id="eu-av" class="av m');
   $("eu-n").textContent=titulo(eu.n);
   $("eu-c").innerHTML='<span class="tag az">'+esc(eu.c==="op"?"Operador de grua":"Motorista")+'</span>'+(eu.f&&FABC[eu.f]?'<span class="tag vd">'+esc(FABC[eu.f])+'</span>':'');
-  var c=contaPeriodo(0), pct=Math.min(100,c.n/2*100);
-  $("per").innerHTML='<div class="l"><span>DNAs no período <b>'+c.P.rot+'</b></span><b>'+Math.min(c.n,99)+' de 2</b></div><div class="bar"><i style="width:'+pct+'%"></i></div>';
+  var c=contaPeriodo(0), cumpriu=c.n>=2, pct=Math.min(100,c.n/2*100);
+  $("per").innerHTML='<div class="l"><span>DNAs no período <b>'+c.P.rot+'</b></span><b>'+c.n+' · meta 2'+(cumpriu?' ✓':'')+'</b></div><div class="bar"><i style="width:'+pct+'%"></i></div>'+(c.n>2?'<div class="mais">Meta batida! Pode continuar lançando.</div>':'');
   desenhaOpcoes(); desenhaFila();
   if(!fotos[eu.k]) fotoDe(eu.k).then(function(f){ if(f&&eu){ kvSet("fotos",fotos); if(tela==="form") $("eu-av").outerHTML=avatar("m",eu.k,eu.n).replace('class="av m','id="eu-av" class="av m'); } });
 }
@@ -375,7 +382,7 @@ function salvar(ev){
   var d=new Date(), reg={id:novoId(),ts:d.getTime(),dia:hoje(),hora:p2(d.getHours())+":"+p2(d.getMinutes()),k:eu.k,tok:eu.tok,nome:eu.n,fab:sel.fab,fabrica:FAB[sel.fab],area:sel.area,local:$("local").value.trim(),descricao:$("desc").value.trim(),acoes:$("acoes").value.trim(),dev:(navigator.userAgent||"").slice(0,110),st:"p"};
   $("salvar").disabled=true;
   filaPut(reg).then(function(){ fila.push(reg); return kvDel("rascunho"); }).then(function(){
-    sel.area=""; $("local").value=""; $("desc").value=""; $("acoes").value=""; $("salvar").disabled=false; tentativa=0; meusCache={};
+    sel.area=""; $("local").value=""; $("desc").value=""; $("acoes").value=""; $("salvar").disabled=false; tentativa=0; meusAll=null;
     mostraOk(false); return sincronizar(); }).catch(function(){ $("salvar").disabled=false; alert("Não consegui salvar neste celular. Libere espaço ou tire do modo privado e tente de novo."); });
 }
 function mostraOk(){
@@ -406,27 +413,36 @@ function sincronizar(){
 function limpaAntigos(){ var corte=Date.now()-60*864e5; var velhos=fila.filter(function(x){return x.st==="e"&&(x.env||x.ts)<corte}); fila=fila.filter(function(x){return velhos.indexOf(x)<0}); return Promise.all(velhos.map(function(x){return filaDel(x.id)})); }
 
 /* ---------- meus registros (com filtro de período) ---------- */
-function opcoesPeriodo(){
-  var h=""; for(var i=0;i<6;i++){ var P=periodo(i); h+='<option value="'+i+'"'+(i===perOff?" selected":"")+'>'+(i===0?"Período atual · ":"")+P.rot+'</option>'; }
-  $("l-per").innerHTML=h;
+function todosMeus(){
+  var loc=fila.filter(function(x){return eu&&x.k===eu.k});
+  var srv=(meusAll||[]).filter(function(s){ return !loc.some(function(x){return x.id===s.id}); }).map(function(s){ return {id:s.id,dia:s.dia,hora:s.hora,area:s.area,local:s.local,descricao:s.descricao,ts:Date.parse(s.dia+"T"+(s.hora||"00:00"))||0,st:"e"}; });
+  return loc.concat(srv);
 }
+function periodosComRegistro(){ var M={}; todosMeus().forEach(function(x){ var P=periodoDe(x.dia); if(P) M[P.ini]=P; }); return Object.keys(M).sort().reverse().map(function(k){return M[k]}); }
 function desenhaLista(){
-  if(!eu) return; var P=periodo(perOff);
-  var loc=fila.filter(function(x){return x.k===eu.k&&x.dia>=P.ini&&x.dia<=P.fim});
-  var srv=(meusCache[perOff]||[]).filter(function(s){ return !loc.some(function(x){return x.id===s.id}); }).map(function(s){ return {id:s.id,dia:s.dia,hora:s.hora,area:s.area,local:s.local,descricao:s.descricao,ts:Date.parse(s.dia+"T"+(s.hora||"00:00"))||0,st:"e"}; });
-  var L=loc.concat(srv).sort(function(a,b){return (b.dia+(b.hora||""))<(a.dia+(a.hora||""))?-1:1;});
-  var pend=L.filter(function(x){return x.st!=="e"}).length, env=L.length-pend, fila_p=fila.filter(function(x){return x.st!=="e"}).length;
-  $("l-sub").textContent=fila_p?fila_p+(fila_p===1?" registro aguardando":" registros aguardando")+" envio":"Tudo enviado. Veja abaixo o que você registrou.";
-  $("l-res").innerHTML='<div><b>'+L.length+'</b><small>no período</small></div><div><b>'+env+'</b><small>enviados</small></div><div><b>'+pend+'</b><small>aguardando</small></div>';
+  if(!eu) return; var Ls=periodosComRegistro(), cur=periodo(0);
+  if(!perSel||!Ls.some(function(p){return p.ini===perSel})) perSel=Ls.length?(Ls.some(function(p){return p.ini===cur.ini})?cur.ini:Ls[0].ini):cur.ini;
+  var P=Ls.filter(function(p){return p.ini===perSel})[0]||cur;
+  // o filtro só lista períodos em que a pessoa tem lançamento (e some se só existe um)
+  $("l-per").innerHTML=Ls.map(function(p){return '<option value="'+p.ini+'"'+(p.ini===perSel?" selected":"")+'>'+(p.ini===cur.ini?"Período atual · ":"")+p.rot+'</option>'}).join("");
+  $("l-per-w").hidden=$("l-per-lb").hidden=Ls.length<2;
+  var L=todosMeus().filter(function(x){return x.dia>=P.ini&&x.dia<=P.fim}).sort(function(a,b){return (b.dia+(b.hora||""))<(a.dia+(a.hora||""))?-1:1;});
+  var n=L.length, ok=n>=2, C=2*Math.PI*70, off=C*(1-Math.min(1,n/2));
+  $("l-anel").className="anel"+(ok?" ok":"");
+  $("l-anel").innerHTML='<svg viewBox="0 0 176 176"><circle class="tr" cx="88" cy="88" r="70"/><circle class="pr" cx="88" cy="88" r="70" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/></svg><div class="nm"><b>'+n+'</b><small>DNA'+(n===1?"":"s")+' no período</small></div>';
+  $("l-rot").textContent=P.rot;
+  $("l-meta").innerHTML='<span class="chipmeta'+(ok?" ok":"")+'">'+(ok?"✓ Meta de 2 atingida":(n===1?"Falta 1 para a meta de 2":"Meta: 2 DNAs por período"))+'</span>';
+  var fila_p=fila.filter(function(x){return x.st!=="e"}).length;
+  $("l-sub").textContent=fila_p?fila_p+(fila_p===1?" registro aguardando":" registros aguardando")+" envio":"";
   $("l-env").hidden=!fila_p||navigator.onLine===false;
-  $("l-itens").innerHTML=L.length?L.map(function(x){ return '<div class="reg"><div class="h"><span>'+esc(br(x.dia))+' · '+esc(x.hora||"")+' · '+esc(x.area||"")+'</span><span class="chip '+(x.st==="e"?"e":"p")+'">'+(x.st==="e"?"enviado":"aguardando")+'</span></div><b>'+esc(x.local||"")+'</b><p>'+esc(x.descricao||"")+'</p>'+(x.st!=="e"?'<button class="lnk" data-del="'+esc(x.id)+'" type="button">Apagar este registro</button>':'')+'</div>'; }).join(""):'<div class="card centro"><p class="sub" style="margin:0">Nenhum registro neste período.</p></div>';
+  $("l-ver").hidden=!n;
+  $("l-itens").innerHTML=L.map(function(x){ return '<div class="reg"><div class="h"><span>'+esc(br(x.dia))+' · '+esc(x.hora||"")+' · '+esc(x.area||"")+'</span><span class="chip '+(x.st==="e"?"e":"p")+'">'+(x.st==="e"?"enviado":"aguardando")+'</span></div><b>'+esc(x.local||"")+'</b><p>'+esc(x.descricao||"")+'</p>'+(x.st!=="e"?'<button class="lnk" data-del="'+esc(x.id)+'" type="button">Apagar este registro</button>':'')+'</div>'; }).join("");
 }
-function carregaMeus(){
-  if(!eu||!eu.tok||!URL_API||!codigo||navigator.onLine===false||perOff<0) return Promise.resolve();
-  var off=perOff, P=periodo(off);
-  return api("GET",{acao:"meus",k:eu.k,tok:eu.tok,ini:P.ini,fim:P.fim}).then(function(r){ if(r&&r.ok){ meusCache[off]=r.regs||[]; if(tela==="lista"&&perOff===off) desenhaLista(); } }).catch(function(){});
+function carregaMeus(){   // todos os registros da pessoa (qualquer celular): daí saem os períodos que têm lançamento
+  if(!eu||!eu.tok||!URL_API||!codigo||navigator.onLine===false) return Promise.resolve();
+  return api("GET",{acao:"meus",k:eu.k,tok:eu.tok,ini:"",fim:""}).then(function(r){ if(r&&r.ok){ meusAll=r.regs||[]; if(tela==="lista") desenhaLista(); } }).catch(function(){});
 }
-function abreLista(){ opcoesPeriodo(); desenhaLista(); mostra("lista"); carregaMeus(); }
+function abreLista(){ $("l-itens").hidden=true; $("l-ver").textContent="Ver detalhes dos registros"; desenhaLista(); mostra("lista"); carregaMeus(); }
 
 /* ---------- instalação / sem internet ---------- */
 var promptInst=null;
@@ -466,7 +482,8 @@ function ligaEventos(){
   $("ok-novo").onclick=function(){ desenhaForm(); mostra("form"); };
   $("t-novo").onclick=function(){ (eu&&eu.tok)?(desenhaForm(),mostra("form")):mostra("quem"); };
   $("t-lista").onclick=abreLista;
-  $("l-per").addEventListener("change",function(){ perOff=+$("l-per").value||0; desenhaLista(); carregaMeus(); });
+  $("l-per").addEventListener("change",function(){ perSel=$("l-per").value; desenhaLista(); });
+  $("l-ver").onclick=function(){ var h=$("l-itens").hidden; $("l-itens").hidden=!h; $("l-ver").textContent=h?"Ocultar detalhes":"Ver detalhes dos registros"; };
   $("l-env").onclick=function(){ tentativa=0; sincronizar(); };
   $("l-itens").addEventListener("click",function(e){ var b=e.target.closest("[data-del]"); if(!b) return; if(!confirm("Apagar este registro? Ele ainda não foi enviado.")) return; var id=b.dataset.del; fila=fila.filter(function(x){return x.id!==id}); filaDel(id).then(function(){ desenhaLista(); desenhaFila(); }); });
   $("inst-x").onclick=function(){ $("inst").hidden=true; try{ localStorage.setItem("dna-inst","1"); }catch(e){} };
