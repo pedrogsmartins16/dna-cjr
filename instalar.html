@@ -18,6 +18,7 @@ p{margin:0 0 18px;opacity:.92}
 .btn{display:block;width:100%;border:0;border-radius:14px;padding:15px 16px;font:700 17px system-ui,sans-serif;cursor:pointer;text-align:center;text-decoration:none}
 .btn.p{background:#1b3a73;color:#fff}.btn.s{background:#eef2f9;color:#1b3a73;margin-top:10px}
 .btn[hidden],.passos[hidden],.ok[hidden],.aviso[hidden]{display:none}
+.aviso#av-pc{margin:0}
 .passos{margin:0;padding-left:0;list-style:none;counter-reset:n}
 .passos li{counter-increment:n;display:flex;gap:12px;align-items:flex-start;margin:0 0 14px;font-size:15.5px}
 .passos li::before{content:counter(n);flex:none;width:28px;height:28px;border-radius:50%;background:#1b3a73;color:#fff;font:700 14px/28px system-ui;text-align:center}
@@ -49,7 +50,7 @@ small{display:block;margin-top:14px;opacity:.8;font-size:13px;text-align:center}
     <li><span>Confirme. O ícone aparece na tela inicial.</span></li>
   </ol>
 
-  <a class="btn s" id="abrir" href="index.html">Abrir o formulário agora</a>
+  <div class="aviso" id="av-pc" hidden><b>Abra este link no celular.</b> O aplicativo é para Android ou iPhone.</div>
 </div>
 <small>Esta página sempre instala a versão mais recente.</small>
 
@@ -61,9 +62,10 @@ small{display:block;margin-top:14px;opacity:.8;font-size:13px;text-align:center}
   var standalone=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone;
   var c=""; try{ c=new URLSearchParams(location.search).get("c")||""; }catch(e){}
   var destino="index.html"+(c?"?c="+encodeURIComponent(c):"");
-  $("abrir").href=destino;
-  $("abrir").addEventListener("click",function(){ try{ localStorage.setItem("dna-pular","1"); }catch(e){} });   // quem escolhe usar sem instalar não é mais redirecionado para cá
+  if(c){ try{ localStorage.setItem("dna-c",c); }catch(e){} }   // o aplicativo instalado (Android) lê daqui o código do link
   if(standalone){ location.replace(destino); return; }   // já está no aplicativo: vai direto para o formulário
+  // o formulário só abre pelo aplicativo instalado; no navegador aparece apenas a instalação
+  if(!/android|iphone|ipad|ipod/i.test(ua)&&!(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1)){ $("av-pc").hidden=false; return; }
 
   var promptInst=null;
   if(ios){

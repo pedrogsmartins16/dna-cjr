@@ -1,13 +1,13 @@
 // Guarda o app no celular para abrir SEM internet.
-// ATUALIZAÇÃO NA HORA: com internet o app SEMPRE busca a versão mais nova do servidor (ignora o cache do navegador);
-// sem internet (ou servidor lento, 4 s) usa a cópia guardada. Mudou o app? Troque o número de V (garante limpar o cache antigo).
-const V = "dna-v6";
+// ATUALIZAÃƒÆ’Ã¢â‚¬Â¡ÃƒÆ’Ã†â€™O NA HORA: com internet o app SEMPRE busca a versÃƒÆ’Ã‚Â£o mais nova do servidor (ignora o cache do navegador);
+// sem internet (ou servidor lento, 4 s) usa a cÃƒÆ’Ã‚Â³pia guardada. Mudou o app? Troque o nÃƒÆ’Ã‚Âºmero de V (garante limpar o cache antigo).
+const V = "dna-v9";
 const ARQ = ["./", "index.html", "config.js", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => Promise.all(ARQ.map(a => fetch(a, { cache: "no-store" }).then(r => r.ok && c.put(a, r)).catch(() => {})))).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
-// Do próprio app: rede primeiro (versão nova na hora), cópia do celular se não houver sinal. Do servidor (Apps Script): nunca passa por aqui.
+// Do prÃƒÆ’Ã‚Â³prio app: rede primeiro (versÃƒÆ’Ã‚Â£o nova na hora), cÃƒÆ’Ã‚Â³pia do celular se nÃƒÆ’Ã‚Â£o houver sinal. Do servidor (Apps Script): nunca passa por aqui.
 self.addEventListener("fetch", e => {
   const r = e.request; if (r.method !== "GET") return;
   const u = new URL(r.url); if (u.origin !== location.origin) return;
