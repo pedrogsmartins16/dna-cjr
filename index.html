@@ -492,12 +492,8 @@ function ligaEventos(){
   document.addEventListener("visibilitychange",function(){ if(!document.hidden){ atualizaRede(); sincronizar(); if(nomes&&Date.now()-nomes.at>36e5) carregaNomes().then(function(){ if(tela==="form") desenhaForm(); }); if(Date.now()-fotosAt>36e5) carregaFotos(); } });
 }
 function inicia(){
-  // SÓ NO APLICATIVO INSTALADO: aberto no navegador, o formulário não abre — vai direto para a tela de instalação.
-  // (Para testes, o desenvolvedor liga localStorage dna-dev=1 no navegador; ninguém mais usa isso.)
-  try{
-    var sa=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone, dev=localStorage.getItem("dna-dev")==="1";
-    if(!sa&&!dev){ location.replace("instalar.html"+location.search); return; }
-  }catch(e){}
+  // Funciona no aplicativo instalado E direto no navegador (celular ou computador).
+  try{ var cq=new URLSearchParams(location.search).get("c"); if(cq) localStorage.setItem("dna-c",cq); }catch(e){}
   atualizaRede(); ligaEventos();
   if("serviceWorker" in navigator){
     // atualização na hora: confere se há versão nova ao abrir e sempre que o app volta para a frente; quando a versão nova assume, recarrega sozinho

@@ -51,6 +51,7 @@ small{display:block;margin-top:14px;opacity:.8;font-size:13px;text-align:center}
   </ol>
 
   <div class="aviso" id="av-pc" hidden><b>Abra este link no celular.</b> O aplicativo é para Android ou iPhone.</div>
+  <a class="btn s" id="web" href="index.html" style="display:block;text-align:center;text-decoration:none;margin-top:14px">Lançar pelo navegador (sem instalar)</a>
 </div>
 <small>Esta página sempre instala a versão mais recente.</small>
 
@@ -64,8 +65,9 @@ small{display:block;margin-top:14px;opacity:.8;font-size:13px;text-align:center}
   var destino="index.html"+(c?"?c="+encodeURIComponent(c):"");
   if(c){ try{ localStorage.setItem("dna-c",c); }catch(e){} }   // o aplicativo instalado (Android) lê daqui o código do link
   if(standalone){ location.replace(destino); return; }   // já está no aplicativo: vai direto para o formulário
-  // o formulário só abre pelo aplicativo instalado; no navegador aparece apenas a instalação
-  if(!/android|iphone|ipad|ipod/i.test(ua)&&!(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1)){ $("av-pc").hidden=false; return; }
+  $("web").href=destino;
+  // computador: não tem o que instalar, abre o formulário direto no navegador
+  if(!/android|iphone|ipad|ipod/i.test(ua)&&!(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1)){ location.replace(destino); return; }
 
   var promptInst=null;
   if(ios){
