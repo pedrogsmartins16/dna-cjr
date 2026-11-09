@@ -1,7 +1,7 @@
 // Guarda o app no celular para abrir SEM internet e ENVIA os registros pendentes sozinho quando o sinal volta (mesmo com o app fechado).
 // Atualização na hora: com internet o app sempre busca a versão mais nova do servidor (ignora o cache do navegador);
 // sem internet (ou servidor lento, 4 s) usa a cópia guardada. Mudou o app? Troque o número de V (garante limpar o cache antigo).
-const V = "dna-v16";
+const V = "dna-v17";
 const ARQ = ["./", "index.html", "config.js", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => Promise.all(ARQ.map(a => fetch(a, { cache: "no-store" }).then(r => r.ok && c.put(a, r)).catch(() => {})))).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => {
@@ -44,4 +44,8 @@ async function enviarPendentes() {
   }
   const cs = await self.clients.matchAll({ includeUncontrolled: true }); cs.forEach(c => c.postMessage({ dna: "enviado" }));
 }
+const tenta = () => enviarPendentes().catch(() => {});
 self.addEventListener("sync", e => { if (e.tag === "dna-enviar") e.waitUntil(enviarPendentes()); });
+self.addEventListener("periodicsync", e => { if (e.tag === "dna-enviar-p") e.waitUntil(tenta()); });   // 2ª via: o Chrome acorda o app de tempos em tempos
+self.addEventListener("activate", e => { e.waitUntil(tenta()); });                                        // 3ª via: sempre que o app é ativado/atualizado
+self.addEventListener("message", e => { if (e.data && e.data.dna === "tentar") e.waitUntil(tenta()); });  // 4ª via: o app pede (ex.: sinal voltou)

@@ -202,6 +202,7 @@ textarea{min-height:104px;resize:vertical}
     </div>
     <button class="lnk" id="l-ver" type="button" style="display:block;margin:0 auto 10px">Ver detalhes dos registros</button>
     <div id="l-itens" hidden></div>
+    <p id="ver-app" style="text-align:center;font-size:12px;color:#8a94a8;margin:14px 0 0"></p>
   </section>
 </main>
 <nav class="tabs" id="tabs" hidden>
@@ -399,7 +400,13 @@ function mostraOk(){
 }
 
 /* ---------- envio ---------- */
-function pedeSync(){ try{ if("serviceWorker" in navigator) navigator.serviceWorker.ready.then(function(r){ if(r.sync) r.sync.register("dna-enviar").catch(function(){}); }).catch(function(){}); }catch(e){} }
+var APP_V="dna-v17";
+function pedeSync(){ try{ if("serviceWorker" in navigator) navigator.serviceWorker.ready.then(function(r){
+  if(r.sync) r.sync.register("dna-enviar").catch(function(){});
+  try{ if(r.periodicSync) r.periodicSync.register("dna-enviar-p",{minInterval:15*60*1000}).catch(function(){}); }catch(e){}
+}).catch(function(){}); }catch(e){} }
+// aplicativo aberto: enquanto houver registro guardado e sinal, tenta a cada 15 s (não depende do aviso de "voltou a internet" do celular)
+setInterval(function(){ if(!document.hidden&&!sincEm&&navigator.onLine!==false&&fila.some(function(x){return x.st!=="e"&&x.tok})){ tentativa=0; sincronizar(); } },15000);
 function sincronizar(){
   if(sincEm||!URL_API||!codigo) return Promise.resolve();
   var pend=fila.filter(function(x){return x.st!=="e"&&x.tok}); if(pend.length){ kvSet("url",URL_API); pedeSync(); }   // garante o envio em segundo plano quando o sinal voltar, mesmo com o app fechado
@@ -449,7 +456,7 @@ function carregaMeus(){   // todos os registros da pessoa (qualquer celular): da
   if(!eu||!eu.tok||!URL_API||!codigo||navigator.onLine===false) return Promise.resolve();
   return api("GET",{acao:"meus",k:eu.k,tok:eu.tok,ini:"",fim:""}).then(function(r){ if(r&&r.ok){ meusAll=r.regs||[]; if(tela==="lista") desenhaLista(); } }).catch(function(){});
 }
-function abreLista(){ $("l-itens").hidden=true; $("l-ver").textContent="Ver detalhes dos registros"; desenhaLista(); mostra("lista"); carregaMeus(); }
+function abreLista(){ $("ver-app").textContent="Versão do aplicativo: "+APP_V+(("serviceWorker" in navigator&&"SyncManager" in window)?" · envio automático ativo":" · envio automático só com o app aberto"); $("l-itens").hidden=true; $("l-ver").textContent="Ver detalhes dos registros"; desenhaLista(); mostra("lista"); carregaMeus(); }
 
 /* ---------- instalação / sem internet ---------- */
 var promptInst=null;
@@ -500,7 +507,7 @@ function ligaEventos(){
     b.disabled=true; b.textContent="Apagando…";
     api("POST",null,{acao:"apagar",k:eu.k,tok:eu.tok,id:id}).then(function(r){ if(r&&r.ok) return tira(); throw new Error("x"); }).catch(function(){ b.disabled=false; b.innerHTML=icone("lixo")+"Apagar este DNA"; alert("Não consegui apagar agora. Tente de novo com sinal."); }); });
   $("inst-x").onclick=function(){ $("inst").hidden=true; try{ localStorage.setItem("dna-inst","1"); }catch(e){} };
-  window.addEventListener("online",function(){ atualizaRede(); tentativa=0; carregaNomes().then(sincronizar); carregaFotos(); });
+  window.addEventListener("online",function(){ atualizaRede(); tentativa=0; sincronizar(); carregaNomes().then(sincronizar); carregaFotos(); });
   window.addEventListener("offline",function(){ atualizaRede(); desenhaFila(); });
   document.addEventListener("visibilitychange",function(){ if(!document.hidden){ atualizaRede(); sincronizar(); if(!nomes||Date.now()-nomes.at>6e4) carregaNomes().then(function(){ if(tela==="form") desenhaForm(); if(tela==="quem") desenhaBusca(); }); if(Date.now()-fotosAt>3e5) carregaFotos(); } });
 }
