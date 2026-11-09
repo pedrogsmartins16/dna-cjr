@@ -158,8 +158,24 @@ textarea{min-height:104px;resize:vertical}
       <div class="campo"><label class="lb" for="sen">Senha <em>*</em></label>
         <div class="inp"><svg class="ico"><use href="#i-chave"/></svg><input id="sen" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Digite sua matrícula" aria-label="Senha (sua matrícula)"><button class="olho" id="sen-ver" type="button" aria-label="Mostrar senha"><svg class="ico"><use href="#i-olho"/></svg></button></div>
         <div class="err" id="sen-err" hidden></div></div>
-      <div class="dica"><svg class="ico" style="margin-top:2px"><use href="#i-info"/></svg><span>Sua senha é o <b>número da sua matrícula</b>. Depois do primeiro acesso o celular lembra de você e entra direto.</span></div>
+      <div class="dica"><svg class="ico" style="margin-top:2px"><use href="#i-info"/></svg><span>No <b>primeiro acesso</b>, a senha é o <b>número da sua matrícula</b>; em seguida você cria uma senha só sua. Depois disso o celular lembra de você e entra direto.</span></div>
       <button class="btn" id="sen-ok" type="button">Entrar</button>
+    </div>
+  </section>
+
+  <section id="s-troca" hidden>
+    <div class="card sen">
+      <div class="av g" id="tr-av">?</div>
+      <h1>Crie a sua senha</h1>
+      <div class="meta" id="tr-n"></div>
+      <div class="dica"><svg class="ico" style="margin-top:2px"><use href="#i-info"/></svg><span>Este é o seu <b>primeiro acesso</b>. Troque a senha inicial (sua matrícula) por uma senha <b>só sua</b>, com pelo menos <b>6 caracteres</b>. Guarde bem: se esquecer, só o responsável consegue liberar de novo.</span></div>
+      <div class="campo"><label class="lb" for="tr-1">Nova senha <em>*</em></label>
+        <div class="inp"><svg class="ico"><use href="#i-chave"/></svg><input id="tr-1" type="password" autocomplete="new-password" autocapitalize="off" spellcheck="false" placeholder="Mínimo 6 caracteres" aria-label="Nova senha"><button class="olho" id="tr-ver" type="button" aria-label="Mostrar senha"><svg class="ico"><use href="#i-olho"/></svg></button></div></div>
+      <div class="campo"><label class="lb" for="tr-2">Repita a nova senha <em>*</em></label>
+        <div class="inp"><svg class="ico"><use href="#i-chave"/></svg><input id="tr-2" type="password" autocomplete="new-password" autocapitalize="off" spellcheck="false" placeholder="Digite de novo" aria-label="Repita a nova senha"></div>
+        <div class="err" id="tr-err" hidden></div></div>
+      <button class="btn" id="tr-ok" type="button">Salvar senha e entrar</button>
+      <button class="lnk" id="tr-cancela" type="button" style="display:block;margin:12px auto 0">Cancelar</button>
     </div>
   </section>
 
@@ -242,7 +258,7 @@ function br(iso){var a=String(iso||"").split("-");return a.length===3?a[2]+"/"+a
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]});}
 function novoId(){ var b=new Uint8Array(12); (window.crypto||window.msCrypto).getRandomValues(b); var h=Array.prototype.map.call(b,function(x){return p2(x.toString(16))}).join(""); return "r"+Date.now().toString(36)+h; }
 function icone(n){return '<svg class="ico"><use href="#i-'+n+'"/></svg>';}
-function mostra(t){ tela=t; ["s-conf","s-codigo","s-quem","s-senha","s-form","s-ok","s-lista"].forEach(function(s){ $(s).hidden=(s!=="s-"+t); });
+function mostra(t){ tela=t; ["s-conf","s-codigo","s-quem","s-senha","s-troca","s-form","s-ok","s-lista"].forEach(function(s){ $(s).hidden=(s!=="s-"+t); });
   $("tabs").hidden=!(t==="form"||t==="lista"||t==="ok"); $("t-novo").setAttribute("aria-current",t==="lista"?"false":"page"); $("t-lista").setAttribute("aria-current",t==="lista"?"page":"false"); window.scrollTo(0,0); }
 /* período padrão do DNA: do dia 21 ao dia 20 do mês seguinte (off=0 atual, 1 anterior…) */
 function mkPer(a,b){ return {ini:isoD(a),fim:isoD(b),rot:p2(a.getDate())+"/"+p2(a.getMonth()+1)+" a "+p2(b.getDate())+"/"+p2(b.getMonth()+1)+"/"+b.getFullYear()}; }
@@ -325,11 +341,12 @@ function abreSenha(o){
 function entrar(){
   var o=esc_, s=$("sen").value.trim(), er=$("sen-err"); er.hidden=true; if(!o) return;
   if(!o.k){ er.textContent="A lista de nomes está desatualizada. Volte, espere um instante e escolha seu nome de novo."; er.hidden=false; nomes=null; carregaNomes(); return; }
-  if(!s){ er.textContent="Digite a sua matrícula."; er.hidden=false; return; }
+  if(!s){ er.textContent="Digite a sua senha (no primeiro acesso, a matrícula)."; er.hidden=false; return; }
   if(navigator.onLine===false){ er.textContent="Sem internet. No primeiro acesso é preciso estar com sinal."; er.hidden=false; return; }
   $("sen-ok").disabled=true; $("sen-ok").textContent="Verificando…";
   api("POST",null,{acao:"entrar",codigo:codigo,k:o.k,senha:s}).then(function(r){
     $("sen-ok").disabled=false; $("sen-ok").textContent="Entrar";
+    if(r&&r.ok&&r.trocar){ trocaPend={eu:{k:r.k,n:r.n,f:r.f,c:r.c,tok:r.tok},novo:true}; abreTroca(); return; }   // 1º acesso: antes de qualquer coisa, cria a senha própria
     if(r&&r.ok){ eu={k:r.k,n:r.n,f:r.f,c:r.c,tok:r.tok}; sel.fab=r.f&&FAB[r.f]?r.f:""; meusAll=null;
       return Promise.all([kvSet("eu",eu),fotos[o.k]?kvSet("fotos",fotos):Promise.resolve()]).then(function(){ desenhaForm(); mostra("form"); sincronizar(); carregaNomes().then(function(){ if(tela==="form") desenhaForm(); }); }); }
     var m={senha:"Senha incorreta."+(r&&r.restam!=null?" Restam "+r.restam+(r.restam===1?" tentativa.":" tentativas."):""),bloqueado:"Muitas tentativas. Aguarde 10 minutos e tente de novo.",sem_acesso:"Você ainda não tem acesso. Fale com o responsável.",codigo:"O código de acesso mudou. Abra o link novo que o responsável enviou."};
@@ -337,9 +354,43 @@ function entrar(){
     if(r&&r.erro==="codigo") kvDel("codigo").then(function(){ codigo=""; mostra("codigo"); });
   }).catch(function(){ $("sen-ok").disabled=false; $("sen-ok").textContent="Entrar"; er.textContent="Sem conexão com o servidor. Tente de novo com sinal."; er.hidden=false; });
 }
+/* ---------- 1º acesso: trocar a senha inicial (matrícula) por uma senha própria ---------- */
+var trocaPend=null, confSenhaEm=0;
+function abreTroca(){
+  var e=trocaPend&&trocaPend.eu; if(!e) return;
+  $("tr-1").value=""; $("tr-2").value=""; $("tr-err").hidden=true; $("tr-ok").disabled=false; $("tr-ok").textContent="Salvar senha e entrar";
+  $("tr-n").textContent=titulo(e.n); var av=$("tr-av"); av.className="av g"; av.innerHTML=fotos[e.k]?'<img alt="" src="'+esc(fotos[e.k])+'">':esc(ini(e.n));
+  $("tr-cancela").hidden=!trocaPend.novo;   // quem já estava dentro não pode pular a troca
+  mostra("troca"); setTimeout(function(){ $("tr-1").focus(); },150);
+}
+function salvaTroca(){
+  var e=trocaPend&&trocaPend.eu, er=$("tr-err"), a=$("tr-1").value.trim(), b=$("tr-2").value.trim(); er.hidden=true; if(!e) return;
+  var erro=!a?"Digite a nova senha.":a.length<6?"A senha precisa ter pelo menos 6 caracteres.":a.length>40?"Use no máximo 40 caracteres.":a!==b?"As duas senhas são diferentes. Digite de novo.":"";
+  if(erro){ er.textContent=erro; er.hidden=false; return; }
+  if(navigator.onLine===false){ er.textContent="Sem internet. Para criar a senha é preciso estar com sinal."; er.hidden=false; return; }
+  $("tr-ok").disabled=true; $("tr-ok").textContent="Salvando…";
+  api("POST",null,{acao:"trocarSenha",k:e.k,tok:e.tok,nova:a}).then(function(r){
+    $("tr-ok").disabled=false; $("tr-ok").textContent="Salvar senha e entrar";
+    if(r&&r.ok&&r.tok){
+      eu={k:e.k,n:e.n,f:e.f,c:e.c,tok:r.tok}; sel.fab=e.f&&FAB[e.f]?e.f:""; meusAll=null; trocaPend=null;
+      // o tok mudou com a senha: os registros guardados neste celular passam a usar o novo, senão o servidor recusaria
+      var ajusta=fila.filter(function(x){return x.k===eu.k&&x.st!=="e"}).map(function(x){ x.tok=r.tok; return filaPut(x); });
+      return Promise.all([kvSet("eu",eu)].concat(ajusta)).then(function(){ desenhaForm(); mostra("form"); sincronizar(); carregaNomes().then(function(){ if(tela==="form") desenhaForm(); }); });
+    }
+    var m={curta:"A senha precisa ter pelo menos 6 caracteres.",longa:"Use no máximo 40 caracteres.",igual:"A senha nova não pode ser a sua matrícula. Escolha outra.",tok:"Sua sessão expirou. Entre de novo com a matrícula."};
+    er.textContent=(r&&m[r.erro])||"Não consegui salvar agora. Tente de novo."; er.hidden=false;
+    if(r&&r.erro==="tok"){ trocaPend=null; eu=null; kvDel("eu").then(function(){ mostra("quem"); }); }
+  }).catch(function(){ $("tr-ok").disabled=false; $("tr-ok").textContent="Salvar senha e entrar"; er.textContent="Sem conexão com o servidor. Tente de novo com sinal."; er.hidden=false; });
+}
+// quem já estava dentro antes dessa regra (ainda com a matrícula como senha) também é levado a trocar
+function confereSenha(){
+  if(!eu||!eu.tok||!URL_API||!codigo||navigator.onLine===false||tela==="troca"||Date.now()-confSenhaEm<3e5) return;
+  confSenhaEm=Date.now();
+  api("GET",{acao:"perfil",k:eu.k,tok:eu.tok}).then(function(r){ if(r&&r.ok&&r.trocar&&eu&&tela!=="troca"){ trocaPend={eu:eu,novo:false}; abreTroca(); } }).catch(function(){});
+}
 function sair(){
   if(!confirm("Sair deste celular?\n\nOs registros que ainda não foram enviados continuam guardados e saem quando você entrar de novo.")) return;
-  eu=null; sel.fab=""; meusAll=null; kvDel("eu").then(function(){ $("q").value=""; $("res").innerHTML=""; mostra("quem"); });
+  eu=null; sel.fab=""; meusAll=null; kvDel("eu").then(function(){ $("q").value=""; $("res").innerHTML=""; $("res")._h=""; mostra("quem"); });
 }
 
 /* ---------- formulário ---------- */
@@ -480,6 +531,9 @@ function ligaEventos(){
   $("res").addEventListener("click",function(e){ var b=e.target.closest("button[data-i]"); if(!b) return; var o=$("res")._L[+b.dataset.i]; if(o) abreSenha(o); });
   $("sen-volta").onclick=function(){ esc_=null; mostra("quem"); $("q").focus(); };
   $("sen-ok").onclick=entrar;
+  $("tr-ok").onclick=salvaTroca; $("tr-cancela").onclick=function(){ trocaPend=null; esc_=null; mostra("quem"); $("q").focus(); };
+  $("tr-2").addEventListener("keydown",function(e){ if(e.key==="Enter") salvaTroca(); });
+  $("tr-ver").onclick=function(){ var s=$("tr-1"), v=s.type==="password"; s.type=v?"text":"password"; $("tr-2").type=s.type; $("tr-ver").innerHTML=icone(v?"olho-x":"olho"); s.focus(); };
   $("sen").addEventListener("keydown",function(e){ if(e.key==="Enter") entrar(); });
   $("sen-ver").onclick=function(){ var s=$("sen"), v=s.type==="password"; s.type=v?"text":"password"; $("sen-ver").innerHTML=icone(v?"olho-x":"olho"); s.focus(); };
   $("eu-sai").onclick=sair;
@@ -501,7 +555,7 @@ function ligaEventos(){
   $("inst-x").onclick=function(){ $("inst").hidden=true; try{ localStorage.setItem("dna-inst","1"); }catch(e){} };
   window.addEventListener("online",function(){ atualizaRede(); tentativa=0; sincronizar(); carregaNomes().then(sincronizar); carregaFotos(); });
   window.addEventListener("offline",function(){ atualizaRede(); desenhaFila(); });
-  document.addEventListener("visibilitychange",function(){ if(!document.hidden){ atualizaRede(); sincronizar(); if(!nomes||Date.now()-nomes.at>6e4) carregaNomes().then(function(){ if(tela==="form") desenhaForm(); if(tela==="quem") desenhaBusca(); }); if(Date.now()-fotosAt>3e5) carregaFotos(); } });
+  document.addEventListener("visibilitychange",function(){ if(!document.hidden){ atualizaRede(); confereSenha(); sincronizar(); if(!nomes||Date.now()-nomes.at>6e4) carregaNomes().then(function(){ if(tela==="form") desenhaForm(); if(tela==="quem") desenhaBusca(); }); if(Date.now()-fotosAt>3e5) carregaFotos(); } });
 }
 setInterval(function(){ if(!document.hidden&&tela==="quem"&&navigator.onLine!==false) carregaNomes().then(function(){ if(tela==="quem") desenhaBusca(); }); },20000);
 function inicia(){
@@ -532,6 +586,7 @@ function inicia(){
       return; }
     if(eu){ if(!sel.fab&&eu.f&&FAB[eu.f]) sel.fab=eu.f; desenhaForm(); mostra("form"); }
     else { mostra("quem"); desenhaBusca(); $("q").focus(); }
+    confereSenha();
     carregaNomes().then(function(m){ if(tela==="form") desenhaForm(); if(tela==="quem") desenhaBusca(); carregaFotos(); return sincronizar(); });
   });
 }
