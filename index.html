@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1b3a73">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="DNA">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<title>DNA · De Olho na Área</title>
+<style>
+:root{--navy:#1b3a73;--navy2:#132c5a;--red:#e31b23;--ok:#17804a;--okbg:#e3f3ea;--warn:#c77800;--warnbg:#fdf1dc;--bg:#f5f6f8;--fg:#14213d;--fg2:#4a5568;--fg3:#8a93a3;--line:#e4e6ea;--card:#fff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:17px;line-height:1.35}
+body{min-height:100vh;min-height:100dvh;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+[hidden]{display:none!important}
+header.top{position:sticky;top:0;z-index:20;background:linear-gradient(120deg,var(--navy2),var(--navy));color:#fff;padding:calc(12px + env(safe-area-inset-top)) 16px 12px;display:flex;align-items:center;gap:12px}
+header.top .lg{width:40px;height:40px;border-radius:11px;background:#fff;color:var(--navy);display:grid;place-items:center;font-weight:900;font-size:15px;position:relative;flex:none}
+header.top .lg::after{content:"";position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:var(--red);border:2px solid var(--navy)}
+header.top b{display:block;font-size:18px;line-height:1.1}header.top small{opacity:.8;font-size:12.5px}
+.net{margin-left:auto;font-size:12.5px;font-weight:700;padding:5px 10px;border-radius:999px;background:#ffffff26;white-space:nowrap}
+.net.on{background:#17804acc}.net.off{background:#c77800}
+main{max-width:640px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 1px 2px rgba(20,33,61,.05)}
+h1{font-size:22px;margin:0 0 4px;line-height:1.15}h2{font-size:17px;margin:0 0 8px}p.sub{margin:0 0 12px;color:var(--fg2);font-size:15px}
+label.lb{display:block;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--fg2);margin:0 0 8px}
+label.lb em{color:var(--red);font-style:normal}
+input[type=text],input[type=search],textarea{width:100%;border:2px solid var(--line);border-radius:12px;padding:14px;font:inherit;background:#fff;color:var(--fg);outline:none}
+input:focus,textarea:focus{border-color:var(--navy);box-shadow:0 0 0 4px #1b3a7322}
+textarea{min-height:104px;resize:vertical}
+.err{color:var(--red);font-size:14px;margin-top:6px;font-weight:600}
+.campo{margin-bottom:18px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}.opts.um{grid-template-columns:1fr}
+.opt{border:2px solid var(--line);background:#fff;border-radius:14px;min-height:56px;padding:10px 12px;font:inherit;font-weight:700;color:var(--fg);cursor:pointer;text-align:center;line-height:1.2}
+.opt[aria-pressed=true]{border-color:var(--navy);background:var(--navy);color:#fff}
+.opt small{display:block;font-weight:500;opacity:.8;font-size:12.5px}
+.btn{display:block;width:100%;min-height:58px;border:0;border-radius:14px;background:var(--navy);color:#fff;font:inherit;font-weight:800;font-size:18px;cursor:pointer}
+.btn:active{transform:scale(.99)}.btn.sec{background:#fff;color:var(--navy);border:2px solid var(--navy)}.btn.red{background:var(--red)}
+.btn:disabled{opacity:.5}
+.lnk{background:none;border:0;color:var(--navy);font:inherit;font-weight:700;text-decoration:underline;padding:6px 0;cursor:pointer}
+.res{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.res button{display:flex;align-items:center;gap:12px;text-align:left;border:2px solid var(--line);background:#fff;border-radius:14px;padding:12px;font:inherit;cursor:pointer;min-height:60px}
+.res button:active{background:var(--bg)}
+.av{width:42px;height:42px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:800;flex:none}
+.res b{display:block}.res small{color:var(--fg3);font-size:13.5px}
+.eu{display:flex;align-items:center;gap:12px}.eu .t{flex:1;min-width:0}.eu b{display:block;font-size:19px;line-height:1.15}.eu small{color:var(--fg2)}
+.per{display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--bg);font-size:14.5px;color:var(--fg2)}
+.per .pts{display:flex;gap:5px}.per .pts i{width:22px;height:22px;border-radius:50%;background:#dfe3ea}.per .pts i.on{background:var(--ok)}
+.aviso{border-radius:14px;padding:12px 14px;margin-bottom:14px;font-size:15px}
+.aviso.ok{background:var(--okbg);color:#0f5a33}.aviso.w{background:var(--warnbg);color:#7a4a00}.aviso.r{background:#fde8e9;color:#9b1219}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-template-columns:1fr 1fr;background:#fff;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.tabs button{border:0;background:none;font:inherit;font-weight:800;color:var(--fg3);padding:14px 6px 12px;min-height:62px;cursor:pointer;position:relative}
+.tabs button[aria-current=page]{color:var(--navy);box-shadow:inset 0 3px 0 var(--navy)}
+.tabs .bd{position:absolute;top:8px;margin-left:6px;background:var(--red);color:#fff;border-radius:999px;font-size:12px;padding:1px 7px}
+.reg{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;background:#fff}
+.reg .h{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:14px;color:var(--fg2)}
+.reg b{display:block;margin:4px 0 2px}.reg p{margin:0;color:var(--fg2);font-size:15px;overflow-wrap:anywhere}
+.chip{font-size:12.5px;font-weight:800;padding:3px 9px;border-radius:999px;white-space:nowrap}.chip.e{background:var(--okbg);color:var(--ok)}.chip.p{background:var(--warnbg);color:var(--warn)}
+.grande{font-size:56px;text-align:center;line-height:1}.centro{text-align:center}
+.inst{position:relative;padding-right:44px}.inst .x{position:absolute;right:8px;top:8px;border:0;background:none;font-size:24px;color:var(--fg3);cursor:pointer;width:36px;height:36px}
+@media (min-width:700px){main{padding-top:28px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="lg">DNA</div>
+  <div><b>De Olho na Área</b><small>CJR Florestal · registro de DNA</small></div>
+  <span id="net" class="net on">online</span>
+</header>
+<main>
+  <div id="inst" class="card inst" hidden><b>Use sem internet</b><p class="sub" style="margin:4px 0 0" id="inst-txt"></p><button class="x" id="inst-x" aria-label="Fechar">×</button></div>
+
+  <section id="s-conf" hidden>
+    <div class="card"><h1>Formulário ainda não configurado</h1><p class="sub">Peça ao responsável para colocar o endereço do servidor no arquivo config.js.</p></div>
+  </section>
+
+  <section id="s-codigo" hidden>
+    <div class="card">
+      <h1>Código de acesso</h1>
+      <p class="sub">Digite o código que o responsável passou. Só é pedido uma vez neste celular. <b>Na primeira vez é preciso estar com internet.</b></p>
+      <div class="campo"><input id="cod" type="text" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="Ex.: AB12CD" maxlength="24" aria-label="Código de acesso"><div class="err" id="cod-err" hidden></div></div>
+      <button class="btn" id="cod-ok">Entrar</button>
+    </div>
+  </section>
+
+  <section id="s-quem" hidden>
+    <div class="card">
+      <h1>Quem é você?</h1>
+      <p class="sub">Digite parte do nome. Toque no seu nome para escolher. Isso fica guardado neste celular.</p>
+      <input id="q" type="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Digite seu nome" aria-label="Buscar nome">
+      <div class="res" id="res" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section id="s-form" hidden>
+    <div class="card">
+      <div class="eu"><div class="av" id="eu-av">?</div><div class="t"><b id="eu-n"></b><small id="eu-s"></small></div><button class="lnk" id="eu-troca" type="button">Trocar</button></div>
+      <div class="per" id="per"></div>
+    </div>
+    <div id="msg-fila" class="aviso w" hidden></div>
+    <form id="f" novalidate>
+      <div class="card">
+        <div class="campo"><label class="lb">Área <em>*</em></label><div class="opts" id="o-area" role="group" aria-label="Área"></div><div class="err" id="e-area" hidden>Escolha a área.</div></div>
+        <div class="campo"><label class="lb">Fábrica em que está atuando <em>*</em></label><div class="opts um" id="o-fab" role="group" aria-label="Fábrica"></div><div class="err" id="e-fab" hidden>Escolha a fábrica.</div></div>
+        <div class="campo"><label class="lb" for="local">Local observado <em>*</em></label><input id="local" type="text" autocomplete="off" placeholder="Onde você viu? (talhão, pátio, estrada…)"><div class="err" id="e-local" hidden>Diga o local.</div></div>
+        <div class="campo"><label class="lb" for="desc">Descrição da ocorrência <em>*</em></label><textarea id="desc" placeholder="O que você observou?"></textarea><div class="err" id="e-desc" hidden>Descreva o que você observou.</div></div>
+        <div class="campo" style="margin-bottom:0"><label class="lb" for="acoes">Ações tomadas <em>*</em></label><textarea id="acoes" placeholder="O que você fez a respeito?"></textarea><div class="err" id="e-acoes" hidden>Diga o que foi feito.</div></div>
+      </div>
+      <button class="btn" id="salvar" type="submit">Salvar registro</button>
+      <p class="sub centro" style="margin-top:10px">Sem internet? Pode salvar: o registro fica neste celular e é enviado sozinho quando o sinal voltar.</p>
+    </form>
+  </section>
+
+  <section id="s-ok" hidden>
+    <div class="card centro"><div class="grande" id="ok-ic">✓</div><h1 id="ok-t">Registro salvo</h1><p class="sub" id="ok-s"></p><button class="btn" id="ok-novo">Fazer outro registro</button></div>
+  </section>
+
+  <section id="s-lista" hidden>
+    <div class="card"><h1>Meus registros</h1><p class="sub" id="l-sub">Os últimos registros feitos neste celular.</p><button class="btn sec" id="l-env" hidden>Enviar agora</button></div>
+    <div id="l-itens"></div>
+  </section>
+</main>
+<nav class="tabs" id="tabs" hidden><button id="t-novo" aria-current="page">＋ Novo registro</button><button id="t-lista">Meus registros<span class="bd" id="t-bd" hidden>0</span></button></nav>
+
+<script src="config.js"></script>
+<script>
+(function(){
+"use strict";
+var CFG=window.DNA_CFG||{}, URL_API=(CFG.url||"").trim(), $=function(i){return document.getElementById(i)};
+var AREAS=["SILVICULTURA","COLHEITA","LOGÍSTICA","OUTROS"];
+var FAB={rrp:"SUZANO - RIBAS DO RIO PARDO (PROJETO CERRADO)",tls:"SUZANO - TRÊS LAGOAS (PROJETO HORIZONTE)"};
+var FABC={rrp:"Ribas do Rio Pardo",tls:"Três Lagoas"};
+var db=null, mem={kv:{},fila:{}}, semBanco=false, codigo="", eu=null, nomes=null, fila=[], sel={area:"",fab:""}, sincEm=false, tentativa=0, tRetry=null, tela="";
+
+/* ---------- armazenamento (IndexedDB; se o navegador bloquear, guarda só enquanto a página estiver aberta) ---------- */
+function abre(){return new Promise(function(ok){
+  try{ var r=indexedDB.open("dna-campo",1);
+    r.onupgradeneeded=function(){ var d=r.result; d.createObjectStore("kv"); d.createObjectStore("fila",{keyPath:"id"}); };
+    r.onsuccess=function(){ db=r.result; ok(); }; r.onerror=function(){ semBanco=true; ok(); }; r.onblocked=function(){ semBanco=true; ok(); };
+  }catch(e){ semBanco=true; ok(); } });}
+function rq(r){return new Promise(function(ok,er){ r.onsuccess=function(){ok(r.result)}; r.onerror=function(){er(r.error)}; });}
+function st(n,m){return db.transaction(n,m||"readonly").objectStore(n);}
+function kvGet(k){ return semBanco?Promise.resolve(mem.kv[k]):rq(st("kv").get(k)); }
+function kvSet(k,v){ if(semBanco){ mem.kv[k]=v; return Promise.resolve(); } return rq(st("kv","readwrite").put(v,k)); }
+function kvDel(k){ if(semBanco){ delete mem.kv[k]; return Promise.resolve(); } return rq(st("kv","readwrite").delete(k)); }
+function filaTodos(){ return semBanco?Promise.resolve(Object.keys(mem.fila).map(function(k){return mem.fila[k]})):rq(st("fila").getAll()); }
+function filaPut(x){ if(semBanco){ mem.fila[x.id]=x; return Promise.resolve(); } return rq(st("fila","readwrite").put(x)); }
+function filaDel(id){ if(semBanco){ delete mem.fila[id]; return Promise.resolve(); } return rq(st("fila","readwrite").delete(id)); }
+
+/* ---------- utilidades ---------- */
+function norm(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\s+/g," ").trim();}
+function titulo(s){return String(s||"").toLowerCase().replace(/(^|\s)(\S)/g,function(m,a,b){return a+b.toUpperCase()}).replace(/\s(De|Da|Do|Dos|Das|E)\s/g,function(m){return m.toLowerCase()});}
+function ini(s){var p=titulo(s).split(" ").filter(Boolean);return ((p[0]||"?")[0]+(p.length>1?p[p.length-1][0]:"")).toUpperCase();}
+function p2(n){return String(n).padStart(2,"0");}
+function hoje(){var d=new Date();return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate());}
+function br(iso){var a=String(iso||"").split("-");return a.length===3?a[2]+"/"+a[1]:"";}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]});}
+function novoId(){ var b=new Uint8Array(12); (window.crypto||window.msCrypto).getRandomValues(b); var h=Array.prototype.map.call(b,function(x){return p2(x.toString(16))}).join(""); return "r"+Date.now().toString(36)+h; }
+function mostra(t){ tela=t; ["s-conf","s-codigo","s-quem","s-form","s-ok","s-lista"].forEach(function(s){ $(s).hidden=(s!=="s-"+t); });
+  $("tabs").hidden=!(t==="form"||t==="lista"||t==="ok"); $("t-novo").setAttribute("aria-current",t==="lista"?"false":"page"); $("t-lista").setAttribute("aria-current",t==="lista"?"page":"false"); window.scrollTo(0,0); }
+
+/* ---------- rede ---------- */
+function api(metodo,params,corpo){
+  var ctl=("AbortController" in window)?new AbortController():null, to=setTimeout(function(){ if(ctl) ctl.abort(); },20000), u=URL_API, o={redirect:"follow",cache:"no-store"};
+  if(ctl) o.signal=ctl.signal;
+  if(metodo==="GET"){ var q=Object.keys(params).map(function(k){return encodeURIComponent(k)+"="+encodeURIComponent(params[k])}).join("&"); u+=(u.indexOf("?")<0?"?":"&")+q; o.method="GET"; }
+  else{ o.method="POST"; o.headers={"Content-Type":"text/plain;charset=utf-8"}; o.body=JSON.stringify(corpo); }
+  return fetch(u,o).then(function(r){ clearTimeout(to); if(!r.ok) throw new Error("http "+r.status); return r.json(); },function(e){ clearTimeout(to); throw e; });
+}
+function atualizaRede(){ var on=navigator.onLine!==false, n=$("net"); n.textContent=on?"online":"sem internet"; n.className="net "+(on?"on":"off"); }
+
+/* ---------- lista de nomes ---------- */
+function carregaNomes(){
+  if(!URL_API||!codigo||navigator.onLine===false) return Promise.resolve(false);
+  return api("GET",{acao:"nomes",codigo:codigo,v:(nomes&&nomes.v)||""}).then(function(r){
+    if(!r||!r.ok){ if(r&&r.erro==="codigo") return kvDel("codigo").then(function(){ codigo=""; mostra("codigo"); return false; }); return false; }
+    if(r.mudou){ nomes={v:r.v,per:r.per,ini:r.ini,fim:r.fim,lista:r.lista||[],at:Date.now()}; return kvSet("nomes",nomes).then(function(){ return true; }); }
+    if(nomes){ nomes.at=Date.now(); return kvSet("nomes",nomes).then(function(){return true}); }
+    return true;
+  }).catch(function(){ return false; });
+}
+function busca(q){
+  var T=norm(q).split(" ").filter(Boolean); if(!T.length||!nomes) return [];
+  var L=(nomes.lista||[]).filter(function(o){ var n=norm(o.n); return T.every(function(t){return n.indexOf(t)>=0}); });
+  L.sort(function(a,b){ var A=norm(a.n).indexOf(T[0])===0?0:1, B=norm(b.n).indexOf(T[0])===0?0:1; return A-B||a.n.localeCompare(b.n,"pt-BR"); });
+  return L.slice(0,8);
+}
+function desenhaBusca(){
+  var q=$("q").value, L=busca(q), box=$("res");
+  if(!nomes||!(nomes.lista||[]).length){ box.innerHTML='<div class="aviso w">A lista de nomes ainda não chegou. Conecte-se à internet uma vez para baixar.</div>'; return; }
+  if(!q.trim()){ box.innerHTML=""; return; }
+  box.innerHTML=L.length?L.map(function(o,i){return '<button type="button" data-i="'+i+'"><span class="av">'+esc(ini(o.n))+'</span><span><b>'+esc(titulo(o.n))+'</b><small>'+esc(o.c==="op"?"Operador de grua":"Motorista")+(o.f&&FABC[o.f]?" · "+esc(FABC[o.f]):"")+'</small></span></button>'}).join(""):'<div class="aviso r">Nenhum nome encontrado. Confira a escrita ou fale com o responsável.</div>';
+  box._L=L;
+}
+
+/* ---------- formulário ---------- */
+function desenhaOpcoes(){
+  $("o-area").innerHTML=AREAS.map(function(a){return '<button type="button" class="opt" data-a="'+a+'" aria-pressed="'+(sel.area===a)+'">'+a+'</button>'}).join("");
+  $("o-fab").innerHTML=Object.keys(FAB).map(function(k){return '<button type="button" class="opt" data-f="'+k+'" aria-pressed="'+(sel.fab===k)+'">'+FABC[k]+'<small>'+esc(FAB[k])+'</small></button>'}).join("");
+}
+function contaPeriodo(){
+  var ini=nomes&&nomes.ini, fim=nomes&&nomes.fim, d=0, eus=nomes&&eu?(nomes.lista||[]).filter(function(o){return o.n===eu.n})[0]:null; if(eus) d=eus.d||0;
+  var loc=fila.filter(function(x){ return ini&&fim&&x.dia>=ini&&x.dia<=fim; }).length;
+  return {n:Math.max(d,loc),ini:ini,fim:fim};
+}
+function desenhaForm(){
+  if(!eu) return;
+  $("eu-av").textContent=ini(eu.n); $("eu-n").textContent=titulo(eu.n); $("eu-s").textContent=(eu.c==="op"?"Operador de grua":"Motorista")+(eu.f&&FABC[eu.f]?" · "+FABC[eu.f]:"");
+  var c=contaPeriodo(), dots=[0,1].map(function(i){return '<i class="'+(i<c.n?"on":"")+'"></i>'}).join("");
+  $("per").innerHTML='<span class="pts">'+dots+'</span><span>'+(c.ini?'No período <b>'+br(c.ini)+' a '+br(c.fim)+'</b>: <b>'+Math.min(c.n,99)+' de 2</b> DNAs':'Período: aguardando a lista de nomes')+'</span>';
+  desenhaOpcoes(); desenhaFila();
+}
+function desenhaFila(){
+  var pend=fila.filter(function(x){return x.st!=="e"}), m=$("msg-fila");
+  if(pend.length){ m.hidden=false; m.className="aviso w"; m.textContent=pend.length+(pend.length===1?" registro aguardando":" registros aguardando")+" envio"+(navigator.onLine===false?" · sem internet agora":"")+". Ficam guardados neste celular."; }
+  else m.hidden=true;
+  var bd=$("t-bd"); bd.hidden=!pend.length; bd.textContent=pend.length;
+  $("l-env").hidden=!pend.length||navigator.onLine===false;
+}
+function rascunhoSalva(){ kvSet("rascunho",{area:sel.area,fab:sel.fab,local:$("local").value,desc:$("desc").value,acoes:$("acoes").value}); }
+function valida(){
+  var v=function(id,ok){ $("e-"+id).hidden=ok; return ok; }, r=[];
+  r.push(v("area",!!sel.area)); r.push(v("fab",!!sel.fab)); r.push(v("local",$("local").value.trim().length>=2));
+  r.push(v("desc",$("desc").value.trim().length>=3)); r.push(v("acoes",$("acoes").value.trim().length>=2));
+  return r.every(Boolean);
+}
+function salvar(ev){
+  ev.preventDefault(); if(!valida()){ var e=document.querySelector(".err:not([hidden])"); if(e&&e.scrollIntoView) e.scrollIntoView({block:"center",behavior:"smooth"}); return; }
+  var d=new Date(), reg={id:novoId(),ts:d.getTime(),dia:hoje(),hora:p2(d.getHours())+":"+p2(d.getMinutes()),nome:eu.n,fab:sel.fab,fabrica:FAB[sel.fab],area:sel.area,local:$("local").value.trim(),descricao:$("desc").value.trim(),acoes:$("acoes").value.trim(),dev:(navigator.userAgent||"").slice(0,110),st:"p"};
+  $("salvar").disabled=true;
+  filaPut(reg).then(function(){ fila.push(reg); return kvDel("rascunho"); }).then(function(){
+    sel.area=""; $("local").value=""; $("desc").value=""; $("acoes").value=""; $("salvar").disabled=false; tentativa=0;
+    mostraOk(false); return sincronizar(); }).catch(function(){ $("salvar").disabled=false; alert("Não consegui salvar neste celular. Libere espaço ou tire do modo privado e tente de novo."); });
+}
+function mostraOk(enviado){
+  var pend=fila.filter(function(x){return x.st!=="e"}).length;
+  $("ok-ic").textContent=pend?"⏳":"✓"; $("ok-t").textContent=pend?"Salvo neste celular":"Registro enviado";
+  $("ok-s").textContent=pend?(pend+(pend===1?" registro aguarda":" registros aguardam")+" sinal de internet. Pode fechar o app: o envio é automático quando o sinal voltar."):"Obrigado! Seu DNA já chegou.";
+  mostra("ok"); desenhaFila();
+}
+
+/* ---------- envio ---------- */
+function sincronizar(){
+  if(sincEm||!URL_API||!codigo) return Promise.resolve();
+  var pend=fila.filter(function(x){return x.st!=="e"}); if(!pend.length||navigator.onLine===false){ desenhaFila(); return Promise.resolve(); }
+  sincEm=true;
+  var lotes=[]; for(var i=0;i<pend.length;i+=10) lotes.push(pend.slice(i,i+10));
+  var parou=false;
+  return lotes.reduce(function(p,lote){ return p.then(function(){ if(parou) return;
+    return api("POST",null,{acao:"enviar",codigo:codigo,regs:lote.map(function(x){return {id:x.id,dia:x.dia,hora:x.hora,nome:x.nome,fab:x.fab,fabrica:x.fabrica,area:x.area,local:x.local,descricao:x.descricao,acoes:x.acoes,dev:x.dev}})}).then(function(r){
+      if(r&&r.ok){ var ids={}; (r.ids||[]).forEach(function(i){ids[i]=1}); return Promise.all(lote.filter(function(x){return ids[x.id]}).map(function(x){ x.st="e"; x.env=Date.now(); return filaPut(x); })); }
+      if(r&&r.erro==="codigo"){ parou=true; return kvDel("codigo").then(function(){ codigo=""; mostra("codigo"); }); }
+      parou=true; }).catch(function(){ parou=true; }); }); },Promise.resolve()).then(function(){
+    sincEm=false; return limpaAntigos(); }).then(function(){ desenhaFila(); if(tela==="ok") mostraOk(); if(tela==="lista") desenhaLista();
+    var ainda=fila.filter(function(x){return x.st!=="e"}).length; clearTimeout(tRetry);
+    if(ainda){ tentativa++; tRetry=setTimeout(sincronizar,Math.min(300000,20000*Math.pow(2,Math.min(tentativa,4)))); } else tentativa=0; });
+}
+function limpaAntigos(){ var corte=Date.now()-60*864e5; var velhos=fila.filter(function(x){return x.st==="e"&&(x.env||x.ts)<corte}); fila=fila.filter(function(x){return velhos.indexOf(x)<0}); return Promise.all(velhos.map(function(x){return filaDel(x.id)})); }
+
+/* ---------- lista ---------- */
+function desenhaLista(){
+  var L=fila.slice().sort(function(a,b){return b.ts-a.ts}).slice(0,40), pend=fila.filter(function(x){return x.st!=="e"}).length;
+  $("l-sub").textContent=pend?pend+" aguardando envio":"Todos os registros foram enviados.";
+  $("l-env").hidden=!pend||navigator.onLine===false;
+  $("l-itens").innerHTML=L.length?L.map(function(x){ return '<div class="reg"><div class="h"><span>'+esc(br(x.dia))+' · '+esc(x.hora)+' · '+esc(x.area)+'</span><span class="chip '+(x.st==="e"?"e":"p")+'">'+(x.st==="e"?"enviado":"aguardando")+'</span></div><b>'+esc(x.local)+'</b><p>'+esc(x.descricao)+'</p>'+(x.st!=="e"?'<button class="lnk" data-del="'+esc(x.id)+'" type="button">Apagar este registro</button>':'')+'</div>'; }).join(""):'<div class="card centro"><p class="sub" style="margin:0">Você ainda não fez registros neste celular.</p></div>';
+}
+
+/* ---------- instalação / sem internet ---------- */
+function dicaInstalar(){
+  var standalone=window.matchMedia&&matchMedia("(display-mode: standalone)").matches||navigator.standalone; if(standalone) return;
+  try{ if(localStorage.getItem("dna-inst")==="1") return; }catch(e){}
+  var ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  $("inst-txt").innerHTML=ios?'Para funcionar sem internet: toque em <b>Compartilhar</b> (□↑) e depois em <b>Adicionar à Tela de Início</b>.':'Para funcionar sem internet: abra o menu do navegador (⋮) e toque em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.';
+  $("inst").hidden=false;
+}
+
+/* ---------- partida ---------- */
+function ligaEventos(){
+  $("cod-ok").onclick=function(){ var c=$("cod").value.trim().toUpperCase(), er=$("cod-err"); er.hidden=true; if(!c){ er.textContent="Digite o código."; er.hidden=false; return; }
+    if(navigator.onLine===false){ er.textContent="Sem internet. Na primeira vez é preciso estar com sinal."; er.hidden=false; return; }
+    $("cod-ok").disabled=true; $("cod-ok").textContent="Verificando…";
+    api("GET",{acao:"nomes",codigo:c,v:""}).then(function(r){ $("cod-ok").disabled=false; $("cod-ok").textContent="Entrar";
+      if(r&&r.ok){ codigo=c; nomes={v:r.v,per:r.per,ini:r.ini,fim:r.fim,lista:r.lista||[],at:Date.now()}; return kvSet("codigo",c).then(function(){return kvSet("nomes",nomes)}).then(function(){ eu?(desenhaForm(),mostra("form")):(mostra("quem"),$("q").focus()); }); }
+      er.textContent=(r&&r.erro==="codigo")?"Código incorreto. Confira com o responsável.":"Não consegui validar agora. Tente de novo."; er.hidden=false;
+    }).catch(function(){ $("cod-ok").disabled=false; $("cod-ok").textContent="Entrar"; er.textContent="Sem conexão com o servidor. Tente de novo com sinal."; er.hidden=false; }); };
+  $("cod").addEventListener("keydown",function(e){ if(e.key==="Enter") $("cod-ok").click(); });
+  $("q").addEventListener("input",desenhaBusca);
+  $("res").addEventListener("click",function(e){ var b=e.target.closest("button[data-i]"); if(!b) return; var o=$("res")._L[+b.dataset.i]; if(!o) return;
+    eu={n:o.n,f:o.f,c:o.c}; sel.fab=o.f&&FAB[o.f]?o.f:""; kvSet("eu",eu).then(function(){ desenhaForm(); mostra("form"); }); });
+  $("eu-troca").onclick=function(){ $("q").value=""; $("res").innerHTML=""; mostra("quem"); $("q").focus(); };
+  $("o-area").addEventListener("click",function(e){ var b=e.target.closest("[data-a]"); if(!b) return; sel.area=b.dataset.a; $("e-area").hidden=true; desenhaOpcoes(); rascunhoSalva(); });
+  $("o-fab").addEventListener("click",function(e){ var b=e.target.closest("[data-f]"); if(!b) return; sel.fab=b.dataset.f; $("e-fab").hidden=true; desenhaOpcoes(); rascunhoSalva(); });
+  ["local","desc","acoes"].forEach(function(i){ $(i).addEventListener("input",function(){ $("e-"+(i==="desc"?"desc":i)).hidden=true; rascunhoSalva(); }); });
+  $("f").addEventListener("submit",salvar);
+  $("ok-novo").onclick=function(){ desenhaForm(); mostra("form"); };
+  $("t-novo").onclick=function(){ eu?(desenhaForm(),mostra("form")):mostra("quem"); };
+  $("t-lista").onclick=function(){ desenhaLista(); mostra("lista"); };
+  $("l-env").onclick=function(){ tentativa=0; sincronizar(); };
+  $("l-itens").addEventListener("click",function(e){ var b=e.target.closest("[data-del]"); if(!b) return; if(!confirm("Apagar este registro? Ele ainda não foi enviado.")) return; var id=b.dataset.del; fila=fila.filter(function(x){return x.id!==id}); filaDel(id).then(function(){ desenhaLista(); desenhaFila(); }); });
+  $("inst-x").onclick=function(){ $("inst").hidden=true; try{ localStorage.setItem("dna-inst","1"); }catch(e){} };
+  window.addEventListener("online",function(){ atualizaRede(); tentativa=0; carregaNomes().then(sincronizar); });
+  window.addEventListener("offline",function(){ atualizaRede(); desenhaFila(); });
+  document.addEventListener("visibilitychange",function(){ if(!document.hidden){ atualizaRede(); sincronizar(); if(nomes&&Date.now()-nomes.at>36e5) carregaNomes().then(function(){ if(tela==="form") desenhaForm(); }); } });
+}
+function inicia(){
+  atualizaRede(); ligaEventos();
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function(){});
+  if(!URL_API||/COLE_AQUI/i.test(URL_API)){ mostra("conf"); return; }
+  abre().then(function(){ return Promise.all([kvGet("codigo"),kvGet("eu"),kvGet("nomes"),kvGet("rascunho"),filaTodos()]); }).then(function(r){
+    codigo=r[0]||""; eu=r[1]||null; nomes=r[2]||null; fila=r[4]||[]; var ras=r[3];
+    if(semBanco) $("msg-fila").textContent="";
+    if(ras){ sel.area=ras.area||""; sel.fab=ras.fab||""; $("local").value=ras.local||""; $("desc").value=ras.desc||""; $("acoes").value=ras.acoes||""; }
+    dicaInstalar();
+    if(!codigo){ mostra("codigo"); $("cod").focus(); return; }
+    if(!eu||!nomes){ if(!nomes){ mostra("quem"); desenhaBusca(); } else { mostra("quem"); $("q").focus(); } }
+    else { if(!sel.fab&&eu.f&&FAB[eu.f]) sel.fab=eu.f; desenhaForm(); mostra("form"); }
+    carregaNomes().then(function(m){ if(tela==="form") desenhaForm(); if(tela==="quem") desenhaBusca(); return sincronizar(); });
+  });
+}
+inicia();
+})();
+</script>
+</body>
+</html>
