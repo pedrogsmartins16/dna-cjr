@@ -13,63 +13,112 @@
 <link rel="icon" href="icon-192.png">
 <title>DNA · De Olho na Área</title>
 <style>
-:root{--navy:#1b3a73;--navy2:#132c5a;--red:#e31b23;--ok:#17804a;--okbg:#e3f3ea;--warn:#c77800;--warnbg:#fdf1dc;--bg:#f5f6f8;--fg:#14213d;--fg2:#4a5568;--fg3:#8a93a3;--line:#e4e6ea;--card:#fff}
+:root{--navy:#1b3a73;--navy2:#132c5a;--navy3:#2a5cb8;--green:#1e9e63;--greenbg:#e5f5ec;--red:#d92b33;--redbg:#fdecee;--warn:#b86e00;--warnbg:#fff3df;--bg:#f2f5fa;--fg:#14213d;--fg2:#4a5568;--fg3:#8793a6;--line:#e2e7ef;--card:#fff;--sh:0 1px 2px rgba(20,33,61,.06),0 6px 18px rgba(20,33,61,.07)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:17px;line-height:1.35}
-body{min-height:100vh;min-height:100dvh;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:17px;line-height:1.4}
+body{min-height:100vh;min-height:100dvh;padding-bottom:calc(84px + env(safe-area-inset-bottom))}
 [hidden]{display:none!important}
-header.top{position:sticky;top:0;z-index:20;background:linear-gradient(120deg,var(--navy2),var(--navy));color:#fff;padding:calc(12px + env(safe-area-inset-top)) 16px 12px;display:flex;align-items:center;gap:12px}
-header.top .lg{width:40px;height:40px;border-radius:11px;background:#fff;color:var(--navy);display:grid;place-items:center;font-weight:900;font-size:15px;position:relative;flex:none}
-header.top .lg::after{content:"";position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:var(--red);border:2px solid var(--navy)}
-header.top b{display:block;font-size:18px;line-height:1.1}header.top small{opacity:.8;font-size:12.5px}
-.net{margin-left:auto;font-size:12.5px;font-weight:700;padding:5px 10px;border-radius:999px;background:#ffffff26;white-space:nowrap}
-.net.on{background:#17804acc}.net.off{background:#c77800}
+button{font:inherit}
+/* topo */
+header.top{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,var(--navy2),var(--navy) 60%,#24508f);color:#fff;padding:calc(12px + env(safe-area-inset-top)) 16px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 18px rgba(19,44,90,.28)}
+header.top .lg{width:42px;height:42px;flex:none;display:block;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+header.top b{display:block;font-size:18px;line-height:1.1;letter-spacing:.01em}header.top small{display:block;margin-top:2px;opacity:.78;font-size:12.5px}
+.net{margin-left:auto;display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;padding:6px 11px;border-radius:999px;background:#ffffff1f;white-space:nowrap}
+.net::before{content:"";width:8px;height:8px;border-radius:50%;background:#5be39c;box-shadow:0 0 0 3px #5be39c33}
+.net.off::before{background:#ffb347;box-shadow:0 0 0 3px #ffb34733}
 main{max-width:640px;margin:0 auto;padding:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 1px 2px rgba(20,33,61,.05)}
-h1{font-size:22px;margin:0 0 4px;line-height:1.15}h2{font-size:17px;margin:0 0 8px}p.sub{margin:0 0 12px;color:var(--fg2);font-size:15px}
-label.lb{display:block;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--fg2);margin:0 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:var(--sh)}
+h1{font-size:23px;margin:0 0 4px;line-height:1.15;letter-spacing:-.01em}h2{font-size:17px;margin:0 0 8px}p.sub{margin:0 0 14px;color:var(--fg2);font-size:15.5px}
+.ico{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* campos */
+label.lb{display:block;font-weight:800;font-size:12.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--fg2);margin:0 0 8px}
 label.lb em{color:var(--red);font-style:normal}
-input[type=text],input[type=search],textarea{width:100%;border:2px solid var(--line);border-radius:12px;padding:14px;font:inherit;background:#fff;color:var(--fg);outline:none}
-input:focus,textarea:focus{border-color:var(--navy);box-shadow:0 0 0 4px #1b3a7322}
+.inp{position:relative}
+.inp .ico{position:absolute;left:14px;top:50%;margin-top:-10px;color:var(--fg3);pointer-events:none}
+input[type=text],input[type=search],input[type=password],input[type=tel],select,textarea{width:100%;border:2px solid var(--line);border-radius:14px;padding:14px;font:inherit;font-size:16.5px;background:#fff;color:var(--fg);outline:none;-webkit-appearance:none;appearance:none}
+.inp input{padding-left:44px}
+input:focus,textarea:focus,select:focus{border-color:var(--navy3);box-shadow:0 0 0 4px #2a5cb826}
 textarea{min-height:104px;resize:vertical}
-.err{color:var(--red);font-size:14px;margin-top:6px;font-weight:600}
+.err{color:var(--red);font-size:14.5px;margin-top:7px;font-weight:600}
 .campo{margin-bottom:18px}
-.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}.opts.um{grid-template-columns:1fr}
-.opt{border:2px solid var(--line);background:#fff;border-radius:14px;min-height:56px;padding:10px 12px;font:inherit;font-weight:700;color:var(--fg);cursor:pointer;text-align:center;line-height:1.2}
-.opt[aria-pressed=true]{border-color:var(--navy);background:var(--navy);color:#fff}
-.opt small{display:block;font-weight:500;opacity:.8;font-size:12.5px}
-.btn{display:block;width:100%;min-height:58px;border:0;border-radius:14px;background:var(--navy);color:#fff;font:inherit;font-weight:800;font-size:18px;cursor:pointer}
-.btn:active{transform:scale(.99)}.btn.sec{background:#fff;color:var(--navy);border:2px solid var(--navy)}.btn.red{background:var(--red)}
-.btn:disabled{opacity:.5}
-.lnk{background:none;border:0;color:var(--navy);font:inherit;font-weight:700;text-decoration:underline;padding:6px 0;cursor:pointer}
-.res{display:flex;flex-direction:column;gap:8px;margin-top:12px}
-.res button{display:flex;align-items:center;gap:12px;text-align:left;border:2px solid var(--line);background:#fff;border-radius:14px;padding:12px;font:inherit;cursor:pointer;min-height:60px}
-.res button:active{background:var(--bg)}
-.av{width:42px;height:42px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:800;flex:none}
-.res b{display:block}.res small{color:var(--fg3);font-size:13.5px}
-.eu{display:flex;align-items:center;gap:12px}.eu .t{flex:1;min-width:0}.eu b{display:block;font-size:19px;line-height:1.15}.eu small{color:var(--fg2)}
-.per{display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--bg);font-size:14.5px;color:var(--fg2)}
-.per .pts{display:flex;gap:5px}.per .pts i{width:22px;height:22px;border-radius:50%;background:#dfe3ea}.per .pts i.on{background:var(--ok)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{border:2px solid var(--line);background:#fff;border-radius:14px;min-height:54px;padding:10px 12px;font-weight:700;color:var(--fg);cursor:pointer;text-align:center;line-height:1.2;transition:all .15s}
+.opt[aria-pressed=true]{border-color:var(--navy);background:linear-gradient(135deg,var(--navy3),var(--navy));color:#fff;box-shadow:0 4px 12px rgba(27,58,115,.3)}
+.btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:58px;border:0;border-radius:16px;background:linear-gradient(135deg,var(--navy3),var(--navy));color:#fff;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 6px 16px rgba(27,58,115,.32)}
+.btn:active{transform:scale(.985)}.btn.sec{background:#fff;color:var(--navy);border:2px solid var(--line);box-shadow:none}.btn:disabled{opacity:.55}
+.lnk{background:none;border:0;color:var(--navy3);font-weight:700;padding:8px 2px;cursor:pointer}
+.voltar{display:inline-flex;align-items:center;gap:6px;background:none;border:0;color:var(--navy3);font-weight:700;padding:4px 0 10px;cursor:pointer}
+/* avatares */
+.av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--navy3),var(--navy));color:#fff;display:grid;place-items:center;font-weight:800;flex:none;overflow:hidden;font-size:15px}
+.av img{width:100%;height:100%;object-fit:cover;display:block}
+.av.g{width:104px;height:104px;font-size:34px;box-shadow:0 8px 24px rgba(27,58,115,.3);border:4px solid #fff}
+.av.m{width:60px;height:60px;font-size:20px;box-shadow:0 4px 14px rgba(27,58,115,.25);border:3px solid #fff}
+.av.carrega{animation:pisca 1.1s ease-in-out infinite}@keyframes pisca{50%{opacity:.55}}
+/* quem é você */
+.res{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+.res button{display:flex;align-items:center;gap:12px;text-align:left;border:2px solid var(--line);background:#fff;border-radius:16px;padding:11px 12px;cursor:pointer;min-height:64px}
+.res button:active{background:var(--bg)}.res b{display:block;line-height:1.2}.res small{color:var(--fg3);font-size:13.5px}
+.res .go{margin-left:auto;color:var(--fg3)}
+/* senha */
+.sen{text-align:center}.sen .av{margin:0 auto 10px}.sen h1{margin-bottom:2px}.sen .meta{color:var(--fg2);font-size:15px;margin-bottom:18px}
+.sen .campo{text-align:left}
+.olho{position:absolute;right:4px;top:50%;margin-top:-22px;width:44px;height:44px;border:0;background:none;color:var(--fg3);cursor:pointer;display:grid;place-items:center}
+.dica{display:flex;gap:8px;align-items:flex-start;background:var(--bg);border-radius:12px;padding:10px 12px;font-size:14.5px;color:var(--fg2);text-align:left;margin-bottom:16px}
+/* perfil + progresso */
+.eu{display:flex;align-items:center;gap:14px}.eu .t{flex:1;min-width:0}.eu b{display:block;font-size:19px;line-height:1.15}.eu small{color:var(--fg2);font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--bg);color:var(--fg2)}
+.tag.az{background:#e8eefb;color:var(--navy)}.tag.vd{background:var(--greenbg);color:#0f6b41}
+.per{margin-top:14px;padding:12px 14px;border-radius:14px;background:var(--bg)}
+.per .l{display:flex;justify-content:space-between;gap:8px;font-size:14px;color:var(--fg2);margin-bottom:8px}.per .l b{color:var(--fg)}
+.bar{height:10px;border-radius:99px;background:#dde3ee;overflow:hidden}.bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green),#43c98b);transition:width .35s}
+.fabl{display:flex;align-items:center;gap:12px;border:2px dashed var(--line);border-radius:14px;padding:12px 14px;background:#fafbfe}
+.fabl .ico{color:var(--navy3);width:24px;height:24px}.fabl b{display:block;font-size:15.5px;line-height:1.25}.fabl small{color:var(--fg3);font-size:12.5px}
 .aviso{border-radius:14px;padding:12px 14px;margin-bottom:14px;font-size:15px}
-.aviso.ok{background:var(--okbg);color:#0f5a33}.aviso.w{background:var(--warnbg);color:#7a4a00}.aviso.r{background:#fde8e9;color:#9b1219}
-.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-template-columns:1fr 1fr;background:#fff;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
-.tabs button{border:0;background:none;font:inherit;font-weight:800;color:var(--fg3);padding:14px 6px 12px;min-height:62px;cursor:pointer;position:relative}
-.tabs button[aria-current=page]{color:var(--navy);box-shadow:inset 0 3px 0 var(--navy)}
-.tabs .bd{position:absolute;top:8px;margin-left:6px;background:var(--red);color:#fff;border-radius:999px;font-size:12px;padding:1px 7px}
-.reg{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;background:#fff}
-.reg .h{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:14px;color:var(--fg2)}
-.reg b{display:block;margin:4px 0 2px}.reg p{margin:0;color:var(--fg2);font-size:15px;overflow-wrap:anywhere}
-.chip{font-size:12.5px;font-weight:800;padding:3px 9px;border-radius:999px;white-space:nowrap}.chip.e{background:var(--okbg);color:var(--ok)}.chip.p{background:var(--warnbg);color:var(--warn)}
-.grande{font-size:56px;text-align:center;line-height:1}.centro{text-align:center}
-.inst{position:relative;padding-right:44px}.inst .x{position:absolute;right:8px;top:8px;border:0;background:none;font-size:24px;color:var(--fg3);cursor:pointer;width:36px;height:36px}
+.aviso.ok{background:var(--greenbg);color:#0f5a33}.aviso.w{background:var(--warnbg);color:#7a4a00}.aviso.r{background:var(--redbg);color:#9b1219}
+/* abas de baixo */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-template-columns:1fr 1fr;background:#ffffffee;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:6px 10px calc(6px + env(safe-area-inset-bottom));gap:8px}
+.tabs button{display:flex;flex-direction:column;align-items:center;gap:3px;border:0;background:none;font-weight:700;font-size:13px;color:var(--fg3);padding:8px 6px;border-radius:14px;cursor:pointer;position:relative}
+.tabs button[aria-current=page]{color:var(--navy);background:#e8eefb}
+.tabs .bd{position:absolute;top:2px;left:calc(50% + 10px);background:var(--warn);color:#fff;border-radius:999px;font-size:11.5px;padding:1px 7px;min-width:20px;text-align:center}
+/* registros */
+.reg{border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px;background:#fff;box-shadow:var(--sh)}
+.reg .h{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:13.5px;color:var(--fg2)}
+.reg b{display:block;margin:6px 0 3px;font-size:16.5px}.reg p{margin:0;color:var(--fg2);font-size:15px;overflow-wrap:anywhere}
+.chip{font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap}.chip.e{background:var(--greenbg);color:#0f6b41}.chip.p{background:var(--warnbg);color:var(--warn)}
+.sel{position:relative}.sel select{padding-right:42px;font-weight:700}.sel .ico{position:absolute;right:14px;top:50%;margin-top:-10px;color:var(--fg3);pointer-events:none}
+.res3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.res3 div{background:var(--bg);border-radius:14px;padding:10px 6px;text-align:center}.res3 b{display:block;font-size:22px;line-height:1.1}.res3 small{color:var(--fg2);font-size:12.5px}
+.grande{width:84px;height:84px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;background:var(--greenbg);color:var(--green)}.grande.w{background:var(--warnbg);color:var(--warn)}.grande .ico{width:44px;height:44px;stroke-width:2.6}
+.centro{text-align:center}
+.inst{position:relative;padding-right:46px;background:linear-gradient(135deg,#eef3fc,#fff)}.inst .x{position:absolute;right:6px;top:6px;border:0;background:none;font-size:26px;color:var(--fg3);cursor:pointer;width:38px;height:38px}
 @media (min-width:700px){main{padding-top:28px}}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="lgBrand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a74d6"/><stop offset="1" stop-color="#17346a"/></linearGradient>
+    <symbol id="i-busca" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-chave" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-olho" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-olho-x" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4M6.5 6.6A17 17 0 0 0 2 12s3.6 7 10 7a9.9 9.9 0 0 0 4-.8"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
+    <symbol id="i-mais" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></symbol>
+    <symbol id="i-lista" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></symbol>
+    <symbol id="i-volta" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+    <symbol id="i-seta" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+    <symbol id="i-baixo" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-ok" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-relogio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-fabrica" viewBox="0 0 24 24"><path d="M3 21V10l6 4V10l6 4V6h6v15z"/><path d="M7 17h2M12 17h2M17 17h2"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.01"/></symbol>
+  </defs>
+</svg>
 <header class="top">
-  <div class="lg">DNA</div>
+  <!-- marca nova: olho verde sobre azul (sem "DNA" nem bolinha vermelha) -->
+  <svg class="lg" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="11" fill="url(#lgBrand)"/><path d="M5.5 20C9.6 13.4 14.6 10.2 20 10.2S30.4 13.4 34.5 20C30.4 26.6 25.4 29.8 20 29.8S9.6 26.6 5.5 20z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/><circle cx="20" cy="20" r="5.6" fill="#3ddc97"/><circle cx="20" cy="20" r="2.3" fill="#0e2147"/><circle cx="22" cy="18" r="1" fill="#fff"/></svg>
   <div><b>De Olho na Área</b><small>CJR Florestal · registro de DNA</small></div>
-  <span id="net" class="net on">online</span>
+  <span id="net" class="net">online</span>
 </header>
 <main>
   <div id="inst" class="card inst" hidden><b>Use sem internet</b><p class="sub" style="margin:4px 0 0" id="inst-txt"></p><button class="x" id="inst-x" aria-label="Fechar">×</button></div>
@@ -82,49 +131,75 @@ textarea{min-height:104px;resize:vertical}
     <div class="card">
       <h1>Código de acesso</h1>
       <p class="sub">Digite o código que o responsável passou. Só é pedido uma vez neste celular. <b>Na primeira vez é preciso estar com internet.</b></p>
-      <div class="campo"><input id="cod" type="text" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="Ex.: AB12CD" maxlength="24" aria-label="Código de acesso"><div class="err" id="cod-err" hidden></div></div>
-      <button class="btn" id="cod-ok">Entrar</button>
+      <div class="campo"><div class="inp"><svg class="ico"><use href="#i-chave"/></svg><input id="cod" type="text" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="Ex.: AB12CD" maxlength="24" aria-label="Código de acesso"></div><div class="err" id="cod-err" hidden></div></div>
+      <button class="btn" id="cod-ok">Continuar</button>
     </div>
   </section>
 
   <section id="s-quem" hidden>
     <div class="card">
       <h1>Quem é você?</h1>
-      <p class="sub">Digite parte do nome. Toque no seu nome para escolher. Isso fica guardado neste celular.</p>
-      <input id="q" type="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Digite seu nome" aria-label="Buscar nome">
+      <p class="sub">Digite parte do seu nome e toque nele. Depois é só informar a senha (sua matrícula). Fica guardado neste celular.</p>
+      <div class="inp"><svg class="ico"><use href="#i-busca"/></svg><input id="q" type="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Digite seu nome" aria-label="Buscar nome"></div>
       <div class="res" id="res" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section id="s-senha" hidden>
+    <div class="card sen">
+      <button class="voltar" id="sen-volta" type="button"><svg class="ico"><use href="#i-volta"/></svg>Escolher outro nome</button>
+      <div class="av g carrega" id="sen-av">?</div>
+      <h1 id="sen-n"></h1>
+      <div class="meta" id="sen-m"></div>
+      <div class="campo"><label class="lb" for="sen">Senha <em>*</em></label>
+        <div class="inp"><svg class="ico"><use href="#i-chave"/></svg><input id="sen" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Digite sua matrícula" aria-label="Senha (sua matrícula)"><button class="olho" id="sen-ver" type="button" aria-label="Mostrar senha"><svg class="ico"><use href="#i-olho"/></svg></button></div>
+        <div class="err" id="sen-err" hidden></div></div>
+      <div class="dica"><svg class="ico" style="margin-top:2px"><use href="#i-info"/></svg><span>Sua senha é o <b>número da sua matrícula</b>. Depois do primeiro acesso o celular lembra de você e entra direto.</span></div>
+      <button class="btn" id="sen-ok" type="button">Entrar</button>
     </div>
   </section>
 
   <section id="s-form" hidden>
     <div class="card">
-      <div class="eu"><div class="av" id="eu-av">?</div><div class="t"><b id="eu-n"></b><small id="eu-s"></small></div><button class="lnk" id="eu-troca" type="button">Trocar</button></div>
+      <div class="eu"><div class="av m" id="eu-av">?</div><div class="t"><b id="eu-n"></b><div class="chips" id="eu-c"></div></div><button class="lnk" id="eu-sai" type="button">Sair</button></div>
       <div class="per" id="per"></div>
     </div>
     <div id="msg-fila" class="aviso w" hidden></div>
     <form id="f" novalidate>
       <div class="card">
         <div class="campo"><label class="lb">Área <em>*</em></label><div class="opts" id="o-area" role="group" aria-label="Área"></div><div class="err" id="e-area" hidden>Escolha a área.</div></div>
-        <div class="campo"><label class="lb">Fábrica em que está atuando <em>*</em></label><div class="opts um" id="o-fab" role="group" aria-label="Fábrica"></div><div class="err" id="e-fab" hidden>Escolha a fábrica.</div></div>
+        <div class="campo" id="c-fab"><label class="lb">Fábrica em que está atuando</label>
+          <div class="fabl" id="fab-auto" hidden><svg class="ico"><use href="#i-fabrica"/></svg><div><b id="fab-t"></b><small>Preenchida automaticamente pelo seu cadastro</small></div></div>
+          <div class="opts" id="o-fab" role="group" aria-label="Fábrica" hidden style="grid-template-columns:1fr"></div><div class="err" id="e-fab" hidden>Escolha a fábrica.</div></div>
         <div class="campo"><label class="lb" for="local">Local observado <em>*</em></label><input id="local" type="text" autocomplete="off" placeholder="Onde você viu? (talhão, pátio, estrada…)"><div class="err" id="e-local" hidden>Diga o local.</div></div>
         <div class="campo"><label class="lb" for="desc">Descrição da ocorrência <em>*</em></label><textarea id="desc" placeholder="O que você observou?"></textarea><div class="err" id="e-desc" hidden>Descreva o que você observou.</div></div>
         <div class="campo" style="margin-bottom:0"><label class="lb" for="acoes">Ações tomadas <em>*</em></label><textarea id="acoes" placeholder="O que você fez a respeito?"></textarea><div class="err" id="e-acoes" hidden>Diga o que foi feito.</div></div>
       </div>
-      <button class="btn" id="salvar" type="submit">Salvar registro</button>
-      <p class="sub centro" style="margin-top:10px">Sem internet? Pode salvar: o registro fica neste celular e é enviado sozinho quando o sinal voltar.</p>
+      <button class="btn" id="salvar" type="submit"><svg class="ico"><use href="#i-ok"/></svg>Salvar registro</button>
+      <p class="sub centro" style="margin-top:12px">Sem internet? Pode salvar: o registro fica neste celular e é enviado sozinho quando o sinal voltar.</p>
     </form>
   </section>
 
   <section id="s-ok" hidden>
-    <div class="card centro"><div class="grande" id="ok-ic">✓</div><h1 id="ok-t">Registro salvo</h1><p class="sub" id="ok-s"></p><button class="btn" id="ok-novo">Fazer outro registro</button></div>
+    <div class="card centro"><div class="grande" id="ok-ic"><svg class="ico"><use href="#i-ok"/></svg></div><h1 id="ok-t">Registro salvo</h1><p class="sub" id="ok-s"></p><button class="btn" id="ok-novo">Fazer outro registro</button></div>
   </section>
 
   <section id="s-lista" hidden>
-    <div class="card"><h1>Meus registros</h1><p class="sub" id="l-sub">Os últimos registros feitos neste celular.</p><button class="btn sec" id="l-env" hidden>Enviar agora</button></div>
+    <div class="card">
+      <h1>Meus registros</h1>
+      <p class="sub" id="l-sub" style="margin-bottom:12px"></p>
+      <label class="lb" for="l-per">Período</label>
+      <div class="sel"><select id="l-per" aria-label="Período"></select><svg class="ico"><use href="#i-baixo"/></svg></div>
+      <div class="res3" id="l-res"></div>
+      <button class="btn sec" id="l-env" hidden style="margin-top:14px">Enviar agora</button>
+    </div>
     <div id="l-itens"></div>
   </section>
 </main>
-<nav class="tabs" id="tabs" hidden><button id="t-novo" aria-current="page">＋ Novo registro</button><button id="t-lista">Meus registros<span class="bd" id="t-bd" hidden>0</span></button></nav>
+<nav class="tabs" id="tabs" hidden>
+  <button id="t-novo" aria-current="page"><svg class="ico"><use href="#i-mais"/></svg>Novo registro</button>
+  <button id="t-lista"><svg class="ico"><use href="#i-lista"/></svg>Meus registros<span class="bd" id="t-bd" hidden>0</span></button>
+</nav>
 
 <script src="config.js"></script>
 <script>
@@ -134,7 +209,7 @@ var CFG=window.DNA_CFG||{}, URL_API=(CFG.url||"").trim(), $=function(i){return d
 var AREAS=["SILVICULTURA","COLHEITA","LOGÍSTICA","OUTROS"];
 var FAB={rrp:"SUZANO - RIBAS DO RIO PARDO (PROJETO CERRADO)",tls:"SUZANO - TRÊS LAGOAS (PROJETO HORIZONTE)"};
 var FABC={rrp:"Ribas do Rio Pardo",tls:"Três Lagoas"};
-var db=null, mem={kv:{},fila:{}}, semBanco=false, codigo="", eu=null, nomes=null, fila=[], sel={area:"",fab:""}, sincEm=false, tentativa=0, tRetry=null, tela="";
+var db=null, mem={kv:{},fila:{}}, semBanco=false, codigo="", eu=null, nomes=null, fotos={}, fila=[], sel={area:"",fab:""}, esc_=null, sincEm=false, tentativa=0, tRetry=null, tela="", perOff=0, meusCache={};
 
 /* ---------- armazenamento (IndexedDB; se o navegador bloquear, guarda só enquanto a página estiver aberta) ---------- */
 function abre(){return new Promise(function(ok){
@@ -156,12 +231,23 @@ function norm(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[�
 function titulo(s){return String(s||"").toLowerCase().replace(/(^|\s)(\S)/g,function(m,a,b){return a+b.toUpperCase()}).replace(/\s(De|Da|Do|Dos|Das|E)\s/g,function(m){return m.toLowerCase()});}
 function ini(s){var p=titulo(s).split(" ").filter(Boolean);return ((p[0]||"?")[0]+(p.length>1?p[p.length-1][0]:"")).toUpperCase();}
 function p2(n){return String(n).padStart(2,"0");}
-function hoje(){var d=new Date();return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate());}
+function isoD(d){return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate());}
+function hoje(){return isoD(new Date());}
 function br(iso){var a=String(iso||"").split("-");return a.length===3?a[2]+"/"+a[1]:"";}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]});}
 function novoId(){ var b=new Uint8Array(12); (window.crypto||window.msCrypto).getRandomValues(b); var h=Array.prototype.map.call(b,function(x){return p2(x.toString(16))}).join(""); return "r"+Date.now().toString(36)+h; }
-function mostra(t){ tela=t; ["s-conf","s-codigo","s-quem","s-form","s-ok","s-lista"].forEach(function(s){ $(s).hidden=(s!=="s-"+t); });
+function icone(n){return '<svg class="ico"><use href="#i-'+n+'"/></svg>';}
+function mostra(t){ tela=t; ["s-conf","s-codigo","s-quem","s-senha","s-form","s-ok","s-lista"].forEach(function(s){ $(s).hidden=(s!=="s-"+t); });
   $("tabs").hidden=!(t==="form"||t==="lista"||t==="ok"); $("t-novo").setAttribute("aria-current",t==="lista"?"false":"page"); $("t-lista").setAttribute("aria-current",t==="lista"?"page":"false"); window.scrollTo(0,0); }
+/* período padrão do DNA: do dia 21 ao dia 20 do mês seguinte (off=0 atual, 1 anterior…) */
+function periodo(off){
+  var d=new Date(), y=d.getFullYear(), m=d.getMonth()+(d.getDate()>=21?0:-1)-(off||0), a=new Date(y,m,21), b=new Date(y,m+1,20);
+  var MES=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+  return {ini:isoD(a),fim:isoD(b),rot:p2(a.getDate())+"/"+p2(a.getMonth()+1)+" a "+p2(b.getDate())+"/"+p2(b.getMonth()+1)+"/"+b.getFullYear(),mes:MES[b.getMonth()]+"/"+b.getFullYear()};
+}
+function avatar(cls,k,nome,carr){
+  var f=k&&fotos[k]; return '<div class="av'+(cls?" "+cls:"")+(carr&&!f?" carrega":"")+'">'+(f?'<img alt="" src="'+esc(f)+'">':esc(ini(nome)))+'</div>';
+}
 
 /* ---------- rede ---------- */
 function api(metodo,params,corpo){
@@ -171,7 +257,7 @@ function api(metodo,params,corpo){
   else{ o.method="POST"; o.headers={"Content-Type":"text/plain;charset=utf-8"}; o.body=JSON.stringify(corpo); }
   return fetch(u,o).then(function(r){ clearTimeout(to); if(!r.ok) throw new Error("http "+r.status); return r.json(); },function(e){ clearTimeout(to); throw e; });
 }
-function atualizaRede(){ var on=navigator.onLine!==false, n=$("net"); n.textContent=on?"online":"sem internet"; n.className="net "+(on?"on":"off"); }
+function atualizaRede(){ var on=navigator.onLine!==false, n=$("net"); n.textContent=on?"online":"sem internet"; n.className="net"+(on?"":" off"); }
 
 /* ---------- lista de nomes ---------- */
 function carregaNomes(){
@@ -193,26 +279,65 @@ function desenhaBusca(){
   var q=$("q").value, L=busca(q), box=$("res");
   if(!nomes||!(nomes.lista||[]).length){ box.innerHTML='<div class="aviso w">A lista de nomes ainda não chegou. Conecte-se à internet uma vez para baixar.</div>'; return; }
   if(!q.trim()){ box.innerHTML=""; return; }
-  box.innerHTML=L.length?L.map(function(o,i){return '<button type="button" data-i="'+i+'"><span class="av">'+esc(ini(o.n))+'</span><span><b>'+esc(titulo(o.n))+'</b><small>'+esc(o.c==="op"?"Operador de grua":"Motorista")+(o.f&&FABC[o.f]?" · "+esc(FABC[o.f]):"")+'</small></span></button>'}).join(""):'<div class="aviso r">Nenhum nome encontrado. Confira a escrita ou fale com o responsável.</div>';
+  box.innerHTML=L.length?L.map(function(o,i){return '<button type="button" data-i="'+i+'"><span class="av">'+esc(ini(o.n))+'</span><span><b>'+esc(titulo(o.n))+'</b><small>'+esc(o.c==="op"?"Operador de grua":"Motorista")+(o.f&&FABC[o.f]?" · "+esc(FABC[o.f]):"")+'</small></span><span class="go">'+icone("seta")+'</span></button>'}).join(""):'<div class="aviso r">Nenhum nome encontrado. Confira a escrita. Se o seu nome não aparece, você ainda não tem acesso: fale com o responsável.</div>';
   box._L=L;
+}
+
+/* ---------- entrar (nome + senha = matrícula) ---------- */
+function fotoDe(k){ // foto da pessoa: do celular, ou baixa do servidor (1 pedido)
+  if(!k) return Promise.resolve("");
+  if(fotos[k]) return Promise.resolve(fotos[k]);
+  if(!URL_API||!codigo||navigator.onLine===false) return Promise.resolve("");
+  return api("GET",{acao:"foto",codigo:codigo,k:k}).then(function(r){ if(r&&r.ok&&r.foto){ fotos[k]=r.foto; return r.foto; } return ""; }).catch(function(){ return ""; });
+}
+function abreSenha(o){
+  esc_=o; $("sen").value=""; $("sen-err").hidden=true; $("sen-ok").disabled=false; $("sen-ok").textContent="Entrar";
+  $("sen-n").textContent=titulo(o.n); $("sen-m").textContent=(o.c==="op"?"Operador de grua":"Motorista")+(o.f&&FABC[o.f]?" · "+FABC[o.f]:"");
+  var av=$("sen-av"); av.className="av g"+(fotos[o.k]?"":" carrega"); av.innerHTML=fotos[o.k]?'<img alt="" src="'+esc(fotos[o.k])+'">':esc(ini(o.n));
+  mostra("senha"); setTimeout(function(){ $("sen").focus(); },150);
+  fotoDe(o.k).then(function(f){ if(esc_!==o) return; av.classList.remove("carrega"); if(f) av.innerHTML='<img alt="" src="'+esc(f)+'">'; });
+}
+function entrar(){
+  var o=esc_, s=$("sen").value.trim(), er=$("sen-err"); er.hidden=true; if(!o) return;
+  if(!s){ er.textContent="Digite a sua matrícula."; er.hidden=false; return; }
+  if(navigator.onLine===false){ er.textContent="Sem internet. No primeiro acesso é preciso estar com sinal."; er.hidden=false; return; }
+  $("sen-ok").disabled=true; $("sen-ok").textContent="Verificando…";
+  api("POST",null,{acao:"entrar",codigo:codigo,k:o.k,senha:s}).then(function(r){
+    $("sen-ok").disabled=false; $("sen-ok").textContent="Entrar";
+    if(r&&r.ok){ eu={k:r.k,n:r.n,f:r.f,c:r.c,tok:r.tok}; sel.fab=r.f&&FAB[r.f]?r.f:""; meusCache={};
+      return Promise.all([kvSet("eu",eu),fotos[o.k]?kvSet("fotos",fotos):Promise.resolve()]).then(function(){ desenhaForm(); mostra("form"); sincronizar(); carregaNomes().then(function(){ if(tela==="form") desenhaForm(); }); }); }
+    var m={senha:"Senha incorreta."+(r&&r.restam!=null?" Restam "+r.restam+(r.restam===1?" tentativa.":" tentativas."):""),bloqueado:"Muitas tentativas. Aguarde 10 minutos e tente de novo.",sem_acesso:"Você ainda não tem acesso. Fale com o responsável.",codigo:"O código de acesso mudou. Abra o link novo que o responsável enviou."};
+    er.textContent=(r&&m[r.erro])||"Não consegui entrar agora. Tente de novo."; er.hidden=false;
+    if(r&&r.erro==="codigo") kvDel("codigo").then(function(){ codigo=""; mostra("codigo"); });
+  }).catch(function(){ $("sen-ok").disabled=false; $("sen-ok").textContent="Entrar"; er.textContent="Sem conexão com o servidor. Tente de novo com sinal."; er.hidden=false; });
+}
+function sair(){
+  if(!confirm("Sair deste celular?\n\nOs registros que ainda não foram enviados continuam guardados e saem quando você entrar de novo.")) return;
+  eu=null; sel.fab=""; meusCache={}; kvDel("eu").then(function(){ $("q").value=""; $("res").innerHTML=""; mostra("quem"); });
 }
 
 /* ---------- formulário ---------- */
 function desenhaOpcoes(){
   $("o-area").innerHTML=AREAS.map(function(a){return '<button type="button" class="opt" data-a="'+a+'" aria-pressed="'+(sel.area===a)+'">'+a+'</button>'}).join("");
-  $("o-fab").innerHTML=Object.keys(FAB).map(function(k){return '<button type="button" class="opt" data-f="'+k+'" aria-pressed="'+(sel.fab===k)+'">'+FABC[k]+'<small>'+esc(FAB[k])+'</small></button>'}).join("");
+  var auto=!!(eu&&eu.f&&FAB[eu.f]);
+  $("fab-auto").hidden=!auto; $("o-fab").hidden=auto; if(auto){ sel.fab=eu.f; $("fab-t").textContent=FAB[eu.f]; $("c-fab").querySelector(".lb").innerHTML="Fábrica em que está atuando"; }
+  else{ $("c-fab").querySelector(".lb").innerHTML='Fábrica em que está atuando <em>*</em>'; $("o-fab").innerHTML=Object.keys(FAB).map(function(k){return '<button type="button" class="opt" data-f="'+k+'" aria-pressed="'+(sel.fab===k)+'">'+FABC[k]+'<small style="display:block;font-weight:500;opacity:.8;font-size:12.5px">'+esc(FAB[k])+'</small></button>'}).join(""); }
 }
-function contaPeriodo(){
-  var ini=nomes&&nomes.ini, fim=nomes&&nomes.fim, d=0, eus=nomes&&eu?(nomes.lista||[]).filter(function(o){return o.n===eu.n})[0]:null; if(eus) d=eus.d||0;
-  var loc=fila.filter(function(x){ return ini&&fim&&x.dia>=ini&&x.dia<=fim; }).length;
-  return {n:Math.max(d,loc),ini:ini,fim:fim};
+function contaPeriodo(off){
+  var P=periodo(off||0), d=0, vi=nomes&&eu?(nomes.lista||[]).filter(function(o){return o.k===eu.k})[0]:null;
+  var loc=fila.filter(function(x){ return x.k===eu.k&&x.dia>=P.ini&&x.dia<=P.fim; }).length;
+  if(!off&&vi&&nomes.ini===P.ini) d=vi.d||0;
+  return {n:Math.max(d,loc),P:P};
 }
 function desenhaForm(){
   if(!eu) return;
-  $("eu-av").textContent=ini(eu.n); $("eu-n").textContent=titulo(eu.n); $("eu-s").textContent=(eu.c==="op"?"Operador de grua":"Motorista")+(eu.f&&FABC[eu.f]?" · "+FABC[eu.f]:"");
-  var c=contaPeriodo(), dots=[0,1].map(function(i){return '<i class="'+(i<c.n?"on":"")+'"></i>'}).join("");
-  $("per").innerHTML='<span class="pts">'+dots+'</span><span>'+(c.ini?'No período <b>'+br(c.ini)+' a '+br(c.fim)+'</b>: <b>'+Math.min(c.n,99)+' de 2</b> DNAs':'Período: aguardando a lista de nomes')+'</span>';
+  $("eu-av").outerHTML=avatar("m",eu.k,eu.n,true).replace('class="av m','id="eu-av" class="av m');
+  $("eu-n").textContent=titulo(eu.n);
+  $("eu-c").innerHTML='<span class="tag az">'+esc(eu.c==="op"?"Operador de grua":"Motorista")+'</span>'+(eu.f&&FABC[eu.f]?'<span class="tag vd">'+esc(FABC[eu.f])+'</span>':'');
+  var c=contaPeriodo(0), pct=Math.min(100,c.n/2*100);
+  $("per").innerHTML='<div class="l"><span>DNAs no período <b>'+c.P.rot+'</b></span><b>'+Math.min(c.n,99)+' de 2</b></div><div class="bar"><i style="width:'+pct+'%"></i></div>';
   desenhaOpcoes(); desenhaFila();
+  if(!fotos[eu.k]) fotoDe(eu.k).then(function(f){ if(f&&eu){ kvSet("fotos",fotos); if(tela==="form") $("eu-av").outerHTML=avatar("m",eu.k,eu.n).replace('class="av m','id="eu-av" class="av m'); } });
 }
 function desenhaFila(){
   var pend=fila.filter(function(x){return x.st!=="e"}), m=$("msg-fila");
@@ -229,16 +354,17 @@ function valida(){
   return r.every(Boolean);
 }
 function salvar(ev){
-  ev.preventDefault(); if(!valida()){ var e=document.querySelector(".err:not([hidden])"); if(e&&e.scrollIntoView) e.scrollIntoView({block:"center",behavior:"smooth"}); return; }
-  var d=new Date(), reg={id:novoId(),ts:d.getTime(),dia:hoje(),hora:p2(d.getHours())+":"+p2(d.getMinutes()),nome:eu.n,fab:sel.fab,fabrica:FAB[sel.fab],area:sel.area,local:$("local").value.trim(),descricao:$("desc").value.trim(),acoes:$("acoes").value.trim(),dev:(navigator.userAgent||"").slice(0,110),st:"p"};
+  ev.preventDefault(); if(!eu) return; if(!valida()){ var e=document.querySelector(".err:not([hidden])"); if(e&&e.scrollIntoView) e.scrollIntoView({block:"center",behavior:"smooth"}); return; }
+  var d=new Date(), reg={id:novoId(),ts:d.getTime(),dia:hoje(),hora:p2(d.getHours())+":"+p2(d.getMinutes()),k:eu.k,tok:eu.tok,nome:eu.n,fab:sel.fab,fabrica:FAB[sel.fab],area:sel.area,local:$("local").value.trim(),descricao:$("desc").value.trim(),acoes:$("acoes").value.trim(),dev:(navigator.userAgent||"").slice(0,110),st:"p"};
   $("salvar").disabled=true;
   filaPut(reg).then(function(){ fila.push(reg); return kvDel("rascunho"); }).then(function(){
-    sel.area=""; $("local").value=""; $("desc").value=""; $("acoes").value=""; $("salvar").disabled=false; tentativa=0;
+    sel.area=""; $("local").value=""; $("desc").value=""; $("acoes").value=""; $("salvar").disabled=false; tentativa=0; meusCache={};
     mostraOk(false); return sincronizar(); }).catch(function(){ $("salvar").disabled=false; alert("Não consegui salvar neste celular. Libere espaço ou tire do modo privado e tente de novo."); });
 }
-function mostraOk(enviado){
+function mostraOk(){
   var pend=fila.filter(function(x){return x.st!=="e"}).length;
-  $("ok-ic").textContent=pend?"⏳":"✓"; $("ok-t").textContent=pend?"Salvo neste celular":"Registro enviado";
+  $("ok-ic").className="grande"+(pend?" w":""); $("ok-ic").innerHTML=pend?icone("relogio"):icone("ok");
+  $("ok-t").textContent=pend?"Salvo neste celular":"Registro enviado";
   $("ok-s").textContent=pend?(pend+(pend===1?" registro aguarda":" registros aguardam")+" sinal de internet. Pode fechar o app: o envio é automático quando o sinal voltar."):"Obrigado! Seu DNA já chegou.";
   mostra("ok"); desenhaFila();
 }
@@ -246,41 +372,56 @@ function mostraOk(enviado){
 /* ---------- envio ---------- */
 function sincronizar(){
   if(sincEm||!URL_API||!codigo) return Promise.resolve();
-  var pend=fila.filter(function(x){return x.st!=="e"}); if(!pend.length||navigator.onLine===false){ desenhaFila(); return Promise.resolve(); }
+  var pend=fila.filter(function(x){return x.st!=="e"&&x.tok}); if(!pend.length||navigator.onLine===false){ desenhaFila(); return Promise.resolve(); }
   sincEm=true;
   var lotes=[]; for(var i=0;i<pend.length;i+=10) lotes.push(pend.slice(i,i+10));
-  var parou=false;
+  var parou=false, reentrar=false;
   return lotes.reduce(function(p,lote){ return p.then(function(){ if(parou) return;
-    return api("POST",null,{acao:"enviar",codigo:codigo,regs:lote.map(function(x){return {id:x.id,dia:x.dia,hora:x.hora,nome:x.nome,fab:x.fab,fabrica:x.fabrica,area:x.area,local:x.local,descricao:x.descricao,acoes:x.acoes,dev:x.dev}})}).then(function(r){
-      if(r&&r.ok){ var ids={}; (r.ids||[]).forEach(function(i){ids[i]=1}); return Promise.all(lote.filter(function(x){return ids[x.id]}).map(function(x){ x.st="e"; x.env=Date.now(); return filaPut(x); })); }
-      if(r&&r.erro==="codigo"){ parou=true; return kvDel("codigo").then(function(){ codigo=""; mostra("codigo"); }); }
+    return api("POST",null,{acao:"enviar",regs:lote.map(function(x){return {id:x.id,k:x.k,tok:x.tok,dia:x.dia,hora:x.hora,fab:x.fab,fabrica:x.fabrica,area:x.area,local:x.local,descricao:x.descricao,acoes:x.acoes,dev:x.dev}})}).then(function(r){
+      if(r&&r.ok){ var ids={}; (r.ids||[]).forEach(function(i){ids[i]=1}); if((r.recusados||[]).length){ var rc={}; r.recusados.forEach(function(i){rc[i]=1}); if(eu&&lote.some(function(x){return rc[x.id]&&x.k===eu.k})) reentrar=true; parou=true; }
+        return Promise.all(lote.filter(function(x){return ids[x.id]}).map(function(x){ x.st="e"; x.env=Date.now(); return filaPut(x); })); }
       parou=true; }).catch(function(){ parou=true; }); }); },Promise.resolve()).then(function(){
     sincEm=false; return limpaAntigos(); }).then(function(){ desenhaFila(); if(tela==="ok") mostraOk(); if(tela==="lista") desenhaLista();
+    if(reentrar){ var o=(nomes&&nomes.lista||[]).filter(function(x){return eu&&x.k===eu.k})[0]; eu=null; return kvDel("eu").then(function(){ if(o){ abreSenha(o); $("sen-err").textContent="Sua senha mudou. Entre de novo para enviar os registros guardados."; $("sen-err").hidden=false; } else mostra("quem"); }); }
     var ainda=fila.filter(function(x){return x.st!=="e"}).length; clearTimeout(tRetry);
-    if(ainda){ tentativa++; tRetry=setTimeout(sincronizar,Math.min(300000,20000*Math.pow(2,Math.min(tentativa,4)))); } else tentativa=0; });
+    if(ainda&&!parou){ tentativa++; tRetry=setTimeout(sincronizar,Math.min(300000,20000*Math.pow(2,Math.min(tentativa,4)))); } else if(ainda){ tentativa++; tRetry=setTimeout(sincronizar,Math.min(300000,20000*Math.pow(2,Math.min(tentativa,4)))); } else tentativa=0; });
 }
 function limpaAntigos(){ var corte=Date.now()-60*864e5; var velhos=fila.filter(function(x){return x.st==="e"&&(x.env||x.ts)<corte}); fila=fila.filter(function(x){return velhos.indexOf(x)<0}); return Promise.all(velhos.map(function(x){return filaDel(x.id)})); }
 
-/* ---------- lista ---------- */
-function desenhaLista(){
-  var L=fila.slice().sort(function(a,b){return b.ts-a.ts}).slice(0,40), pend=fila.filter(function(x){return x.st!=="e"}).length;
-  $("l-sub").textContent=pend?pend+" aguardando envio":"Todos os registros foram enviados.";
-  $("l-env").hidden=!pend||navigator.onLine===false;
-  $("l-itens").innerHTML=L.length?L.map(function(x){ return '<div class="reg"><div class="h"><span>'+esc(br(x.dia))+' · '+esc(x.hora)+' · '+esc(x.area)+'</span><span class="chip '+(x.st==="e"?"e":"p")+'">'+(x.st==="e"?"enviado":"aguardando")+'</span></div><b>'+esc(x.local)+'</b><p>'+esc(x.descricao)+'</p>'+(x.st!=="e"?'<button class="lnk" data-del="'+esc(x.id)+'" type="button">Apagar este registro</button>':'')+'</div>'; }).join(""):'<div class="card centro"><p class="sub" style="margin:0">Você ainda não fez registros neste celular.</p></div>';
+/* ---------- meus registros (com filtro de período) ---------- */
+function opcoesPeriodo(){
+  var h=""; for(var i=0;i<6;i++){ var P=periodo(i); h+='<option value="'+i+'"'+(i===perOff?" selected":"")+'>'+(i===0?"Período atual · ":"")+P.rot+'</option>'; }
+  $("l-per").innerHTML=h;
 }
+function desenhaLista(){
+  if(!eu) return; var P=periodo(perOff);
+  var loc=fila.filter(function(x){return x.k===eu.k&&x.dia>=P.ini&&x.dia<=P.fim});
+  var srv=(meusCache[perOff]||[]).filter(function(s){ return !loc.some(function(x){return x.id===s.id}); }).map(function(s){ return {id:s.id,dia:s.dia,hora:s.hora,area:s.area,local:s.local,descricao:s.descricao,ts:Date.parse(s.dia+"T"+(s.hora||"00:00"))||0,st:"e"}; });
+  var L=loc.concat(srv).sort(function(a,b){return (b.dia+(b.hora||""))<(a.dia+(a.hora||""))?-1:1;});
+  var pend=L.filter(function(x){return x.st!=="e"}).length, env=L.length-pend, fila_p=fila.filter(function(x){return x.st!=="e"}).length;
+  $("l-sub").textContent=fila_p?fila_p+(fila_p===1?" registro aguardando":" registros aguardando")+" envio":"Tudo enviado. Veja abaixo o que você registrou.";
+  $("l-res").innerHTML='<div><b>'+L.length+'</b><small>no período</small></div><div><b>'+env+'</b><small>enviados</small></div><div><b>'+pend+'</b><small>aguardando</small></div>';
+  $("l-env").hidden=!fila_p||navigator.onLine===false;
+  $("l-itens").innerHTML=L.length?L.map(function(x){ return '<div class="reg"><div class="h"><span>'+esc(br(x.dia))+' · '+esc(x.hora||"")+' · '+esc(x.area||"")+'</span><span class="chip '+(x.st==="e"?"e":"p")+'">'+(x.st==="e"?"enviado":"aguardando")+'</span></div><b>'+esc(x.local||"")+'</b><p>'+esc(x.descricao||"")+'</p>'+(x.st!=="e"?'<button class="lnk" data-del="'+esc(x.id)+'" type="button">Apagar este registro</button>':'')+'</div>'; }).join(""):'<div class="card centro"><p class="sub" style="margin:0">Nenhum registro neste período.</p></div>';
+}
+function carregaMeus(){
+  if(!eu||!eu.tok||!URL_API||!codigo||navigator.onLine===false||perOff<0) return Promise.resolve();
+  var off=perOff, P=periodo(off);
+  return api("GET",{acao:"meus",k:eu.k,tok:eu.tok,ini:P.ini,fim:P.fim}).then(function(r){ if(r&&r.ok){ meusCache[off]=r.regs||[]; if(tela==="lista"&&perOff===off) desenhaLista(); } }).catch(function(){});
+}
+function abreLista(){ opcoesPeriodo(); desenhaLista(); mostra("lista"); carregaMeus(); }
 
 /* ---------- instalação / sem internet ---------- */
+var promptInst=null;
 function dicaInstalar(){
   var standalone=window.matchMedia&&matchMedia("(display-mode: standalone)").matches||navigator.standalone; if(standalone) return;
   try{ if(localStorage.getItem("dna-inst")==="1") return; }catch(e){}
   var ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
-  var btn=(!ios&&promptInst)?'<br><button class="btn" id="inst-go" type="button" style="margin-top:8px">Instalar aplicativo</button>':'';
+  var btn=(!ios&&promptInst)?'<br><button class="btn" id="inst-go" type="button" style="margin-top:8px;min-height:50px;font-size:16.5px">Instalar aplicativo</button>':'';
   $("inst-txt").innerHTML=(ios?'Para funcionar sem internet: toque em <b>Compartilhar</b> (□↑) e depois em <b>Adicionar à Tela de Início</b>.':(promptInst?'Instale o aplicativo para usar mesmo sem internet:':'Para funcionar sem internet: abra o menu do navegador (⋮) e toque em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.'))+btn;
   var go=$("inst-go"); if(go) go.onclick=function(){ var p=promptInst; promptInst=null; p.prompt(); p.userChoice.then(function(){ $("inst").hidden=true; try{ localStorage.setItem("dna-inst","1"); }catch(e){} }); };
   $("inst").hidden=false;
 }
-var promptInst=null;
-// Android/Chrome: guarda o pedido de instalação e mostra um botão "Instalar aplicativo" (um toque, sem explicar menu)
 window.addEventListener("beforeinstallprompt",function(e){ e.preventDefault(); promptInst=e; dicaInstalar(); });
 window.addEventListener("appinstalled",function(){ $("inst").hidden=true; try{ localStorage.setItem("dna-inst","1"); }catch(e){} });
 
@@ -289,22 +430,26 @@ function ligaEventos(){
   $("cod-ok").onclick=function(){ var c=$("cod").value.trim().toUpperCase(), er=$("cod-err"); er.hidden=true; if(!c){ er.textContent="Digite o código."; er.hidden=false; return; }
     if(navigator.onLine===false){ er.textContent="Sem internet. Na primeira vez é preciso estar com sinal."; er.hidden=false; return; }
     $("cod-ok").disabled=true; $("cod-ok").textContent="Verificando…";
-    api("GET",{acao:"nomes",codigo:c,v:""}).then(function(r){ $("cod-ok").disabled=false; $("cod-ok").textContent="Entrar";
-      if(r&&r.ok){ codigo=c; nomes={v:r.v,per:r.per,ini:r.ini,fim:r.fim,lista:r.lista||[],at:Date.now()}; return kvSet("codigo",c).then(function(){return kvSet("nomes",nomes)}).then(function(){ eu?(desenhaForm(),mostra("form")):(mostra("quem"),$("q").focus()); }); }
+    api("GET",{acao:"nomes",codigo:c,v:""}).then(function(r){ $("cod-ok").disabled=false; $("cod-ok").textContent="Continuar";
+      if(r&&r.ok){ codigo=c; nomes={v:r.v,per:r.per,ini:r.ini,fim:r.fim,lista:r.lista||[],at:Date.now()}; return kvSet("codigo",c).then(function(){return kvSet("nomes",nomes)}).then(function(){ (eu&&eu.tok)?(desenhaForm(),mostra("form")):(mostra("quem"),$("q").focus()); }); }
       er.textContent=(r&&r.erro==="codigo")?"Código incorreto. Confira com o responsável.":"Não consegui validar agora. Tente de novo."; er.hidden=false;
-    }).catch(function(){ $("cod-ok").disabled=false; $("cod-ok").textContent="Entrar"; er.textContent="Sem conexão com o servidor. Tente de novo com sinal."; er.hidden=false; }); };
+    }).catch(function(){ $("cod-ok").disabled=false; $("cod-ok").textContent="Continuar"; er.textContent="Sem conexão com o servidor. Tente de novo com sinal."; er.hidden=false; }); };
   $("cod").addEventListener("keydown",function(e){ if(e.key==="Enter") $("cod-ok").click(); });
   $("q").addEventListener("input",desenhaBusca);
-  $("res").addEventListener("click",function(e){ var b=e.target.closest("button[data-i]"); if(!b) return; var o=$("res")._L[+b.dataset.i]; if(!o) return;
-    eu={n:o.n,f:o.f,c:o.c}; sel.fab=o.f&&FAB[o.f]?o.f:""; kvSet("eu",eu).then(function(){ desenhaForm(); mostra("form"); }); });
-  $("eu-troca").onclick=function(){ $("q").value=""; $("res").innerHTML=""; mostra("quem"); $("q").focus(); };
+  $("res").addEventListener("click",function(e){ var b=e.target.closest("button[data-i]"); if(!b) return; var o=$("res")._L[+b.dataset.i]; if(o) abreSenha(o); });
+  $("sen-volta").onclick=function(){ esc_=null; mostra("quem"); $("q").focus(); };
+  $("sen-ok").onclick=entrar;
+  $("sen").addEventListener("keydown",function(e){ if(e.key==="Enter") entrar(); });
+  $("sen-ver").onclick=function(){ var s=$("sen"), v=s.type==="password"; s.type=v?"text":"password"; $("sen-ver").innerHTML=icone(v?"olho-x":"olho"); s.focus(); };
+  $("eu-sai").onclick=sair;
   $("o-area").addEventListener("click",function(e){ var b=e.target.closest("[data-a]"); if(!b) return; sel.area=b.dataset.a; $("e-area").hidden=true; desenhaOpcoes(); rascunhoSalva(); });
   $("o-fab").addEventListener("click",function(e){ var b=e.target.closest("[data-f]"); if(!b) return; sel.fab=b.dataset.f; $("e-fab").hidden=true; desenhaOpcoes(); rascunhoSalva(); });
-  ["local","desc","acoes"].forEach(function(i){ $(i).addEventListener("input",function(){ $("e-"+(i==="desc"?"desc":i)).hidden=true; rascunhoSalva(); }); });
+  ["local","desc","acoes"].forEach(function(i){ $(i).addEventListener("input",function(){ $("e-"+i).hidden=true; rascunhoSalva(); }); });
   $("f").addEventListener("submit",salvar);
   $("ok-novo").onclick=function(){ desenhaForm(); mostra("form"); };
-  $("t-novo").onclick=function(){ eu?(desenhaForm(),mostra("form")):mostra("quem"); };
-  $("t-lista").onclick=function(){ desenhaLista(); mostra("lista"); };
+  $("t-novo").onclick=function(){ (eu&&eu.tok)?(desenhaForm(),mostra("form")):mostra("quem"); };
+  $("t-lista").onclick=abreLista;
+  $("l-per").addEventListener("change",function(){ perOff=+$("l-per").value||0; desenhaLista(); carregaMeus(); });
   $("l-env").onclick=function(){ tentativa=0; sincronizar(); };
   $("l-itens").addEventListener("click",function(e){ var b=e.target.closest("[data-del]"); if(!b) return; if(!confirm("Apagar este registro? Ele ainda não foi enviado.")) return; var id=b.dataset.del; fila=fila.filter(function(x){return x.id!==id}); filaDel(id).then(function(){ desenhaLista(); desenhaFila(); }); });
   $("inst-x").onclick=function(){ $("inst").hidden=true; try{ localStorage.setItem("dna-inst","1"); }catch(e){} };
@@ -330,17 +475,16 @@ function inicia(){
     }).catch(function(){});
   }
   if(!URL_API||/COLE_AQUI/i.test(URL_API)){ mostra("conf"); return; }
-  abre().then(function(){ return Promise.all([kvGet("codigo"),kvGet("eu"),kvGet("nomes"),kvGet("rascunho"),filaTodos()]); }).then(function(r){
-    codigo=r[0]||""; eu=r[1]||null; nomes=r[2]||null; fila=r[4]||[]; var ras=r[3];
-    if(semBanco) $("msg-fila").textContent="";
+  abre().then(function(){ return Promise.all([kvGet("codigo"),kvGet("eu"),kvGet("nomes"),kvGet("rascunho"),filaTodos(),kvGet("fotos")]); }).then(function(r){
+    codigo=r[0]||""; eu=(r[1]&&r[1].tok)?r[1]:null; nomes=r[2]||null; fila=r[4]||[]; fotos=r[5]||{}; var ras=r[3];
     if(ras){ sel.area=ras.area||""; sel.fab=ras.fab||""; $("local").value=ras.local||""; $("desc").value=ras.desc||""; $("acoes").value=ras.acoes||""; }
     dicaInstalar();
     if(!codigo){ mostra("codigo"); $("cod").focus();
       // link com o código (…/?c=XXXX): entra sozinho, sem digitar; o código sai do endereço
       try{ var cp=new URLSearchParams(location.search).get("c"); if(cp){ $("cod").value=cp; try{ history.replaceState(null,"",location.pathname); }catch(e){} $("cod-ok").click(); } }catch(e){}
       return; }
-    if(!eu||!nomes){ if(!nomes){ mostra("quem"); desenhaBusca(); } else { mostra("quem"); $("q").focus(); } }
-    else { if(!sel.fab&&eu.f&&FAB[eu.f]) sel.fab=eu.f; desenhaForm(); mostra("form"); }
+    if(eu){ if(!sel.fab&&eu.f&&FAB[eu.f]) sel.fab=eu.f; desenhaForm(); mostra("form"); }
+    else { mostra("quem"); desenhaBusca(); $("q").focus(); }
     carregaNomes().then(function(m){ if(tela==="form") desenhaForm(); if(tela==="quem") desenhaBusca(); return sincronizar(); });
   });
 }

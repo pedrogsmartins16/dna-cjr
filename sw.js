@@ -1,7 +1,7 @@
-﻿// Guarda o app no celular para abrir SEM internet.
+// Guarda o app no celular para abrir SEM internet.
 // ATUALIZAÇÃO NA HORA: com internet o app SEMPRE busca a versão mais nova do servidor (ignora o cache do navegador);
 // sem internet (ou servidor lento, 4 s) usa a cópia guardada. Mudou o app? Troque o número de V (garante limpar o cache antigo).
-const V = "dna-v5";
+const V = "dna-v6";
 const ARQ = ["./", "index.html", "config.js", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => Promise.all(ARQ.map(a => fetch(a, { cache: "no-store" }).then(r => r.ok && c.put(a, r)).catch(() => {})))).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => {
