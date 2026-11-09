@@ -91,6 +91,7 @@ textarea{min-height:104px;resize:vertical}
 .reg{border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px;background:#fff;box-shadow:var(--sh)}
 .reg .h{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:13.5px;color:var(--fg2)}
 .reg b{display:block;margin:6px 0 3px;font-size:16.5px}.reg p{margin:0;color:var(--fg2);font-size:15px;overflow-wrap:anywhere}
+.apg{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:12px;min-height:46px;border:1.5px solid #f0a3a6;border-radius:12px;background:#fff;color:#c11b22;font:700 15px inherit;cursor:pointer}.apg .ico{width:19px;height:19px}.apg:active{background:#fde8e9}.apg:disabled{opacity:.6}
 .chip{font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap}.chip.e{background:var(--greenbg);color:#0f6b41}.chip.p{background:var(--warnbg);color:var(--warn)}
 .sel{position:relative}.sel select{padding-right:42px;font-weight:700}.sel .ico{position:absolute;right:14px;top:50%;margin-top:-10px;color:var(--fg3);pointer-events:none}
 .res3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
@@ -105,6 +106,7 @@ textarea{min-height:104px;resize:vertical}
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <linearGradient id="lgBrand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a74d6"/><stop offset="1" stop-color="#17346a"/></linearGradient>
+    <symbol id="i-lixo" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></symbol>
     <symbol id="i-busca" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
     <symbol id="i-chave" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
     <symbol id="i-olho" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
@@ -298,8 +300,11 @@ function busca(q){
   L.sort(function(a,b){ var A=norm(a.n).indexOf(T[0])===0?0:1, B=norm(b.n).indexOf(T[0])===0?0:1; return A-B||a.n.localeCompare(b.n,"pt-BR"); });
   return L.slice(0,8);
 }
+var nomesTent=0;
 function desenhaBusca(){
   var q=$("q").value, L=busca(q), box=$("res");
+  // não achou o nome: pode ser cadastro novo — confere o servidor agora (no máximo 1 vez a cada 15 s) e redesenha se chegou
+  if(q.trim().length>=3&&!L.length&&Date.now()-nomesTent>15e3&&navigator.onLine!==false){ nomesTent=Date.now(); carregaNomes().then(function(){ if(tela==="quem"&&busca($("q").value).length) desenhaBusca(); }); }
   if(!nomes||!(nomes.lista||[]).length){ box.innerHTML='<div class="aviso w">A lista de nomes ainda não chegou. Conecte-se à internet uma vez para baixar.</div>'; return; }
   if(!q.trim()){ box.innerHTML=""; return; }
   var h=L.length?L.map(function(o,i){return '<button type="button" data-i="'+i+'" data-k="'+esc(o.k)+'">'+avatar("",o.k,o.n)+'<span><b>'+esc(titulo(o.n))+'</b><small>'+esc(o.c==="op"?"Operador de grua":"Motorista")+(o.f&&FABC[o.f]?" · "+esc(FABC[o.f]):"")+'</small></span><span class="go">'+icone("seta")+'</span></button>'}).join(""):'<div class="aviso r">Nenhum nome encontrado. Confira a escrita. Se o seu nome não aparece, você ainda não tem acesso: fale com o responsável.</div>';
@@ -394,9 +399,11 @@ function mostraOk(){
 }
 
 /* ---------- envio ---------- */
+function pedeSync(){ try{ if("serviceWorker" in navigator) navigator.serviceWorker.ready.then(function(r){ if(r.sync) r.sync.register("dna-enviar").catch(function(){}); }).catch(function(){}); }catch(e){} }
 function sincronizar(){
   if(sincEm||!URL_API||!codigo) return Promise.resolve();
-  var pend=fila.filter(function(x){return x.st!=="e"&&x.tok}); if(!pend.length||navigator.onLine===false){ desenhaFila(); return Promise.resolve(); }
+  var pend=fila.filter(function(x){return x.st!=="e"&&x.tok}); if(pend.length){ kvSet("url",URL_API); pedeSync(); }   // garante o envio em segundo plano quando o sinal voltar, mesmo com o app fechado
+  if(!pend.length||navigator.onLine===false){ desenhaFila(); return Promise.resolve(); }
   sincEm=true;
   var lotes=[]; for(var i=0;i<pend.length;i+=10) lotes.push(pend.slice(i,i+10));
   var parou=false, reentrar=false;
@@ -436,7 +443,7 @@ function desenhaLista(){
   $("l-sub").textContent=fila_p?fila_p+(fila_p===1?" registro aguardando":" registros aguardando")+" envio":"";
   $("l-env").hidden=!fila_p||navigator.onLine===false;
   $("l-ver").hidden=!n;
-  $("l-itens").innerHTML=L.map(function(x){ return '<div class="reg"><div class="h"><span>'+esc(br(x.dia))+' · '+esc(x.hora||"")+' · '+esc(x.area||"")+'</span><span class="chip '+(x.st==="e"?"e":"p")+'">'+(x.st==="e"?"enviado":"aguardando")+'</span></div><b>'+esc(x.local||"")+'</b><p>'+esc(x.descricao||"")+'</p>'+(x.st!=="e"?'<button class="lnk" data-del="'+esc(x.id)+'" type="button">Apagar este registro</button>':'')+'</div>'; }).join("");
+  $("l-itens").innerHTML=L.map(function(x){ return '<div class="reg"><div class="h"><span>'+esc(br(x.dia))+' · '+esc(x.hora||"")+' · '+esc(x.area||"")+'</span><span class="chip '+(x.st==="e"?"e":"p")+'">'+(x.st==="e"?"enviado":"aguardando")+'</span></div><b>'+esc(x.local||"")+'</b><p>'+esc(x.descricao||"")+'</p>'+'<button class="apg" data-del="'+esc(x.id)+'" data-env="'+(x.st==="e"?"1":"0")+'" type="button">'+icone("lixo")+'Apagar este DNA</button></div>'; }).join("");
 }
 function carregaMeus(){   // todos os registros da pessoa (qualquer celular): daí saem os períodos que têm lançamento
   if(!eu||!eu.tok||!URL_API||!codigo||navigator.onLine===false) return Promise.resolve();
@@ -485,12 +492,19 @@ function ligaEventos(){
   $("l-per").addEventListener("change",function(){ perSel=$("l-per").value; desenhaLista(); });
   $("l-ver").onclick=function(){ var h=$("l-itens").hidden; $("l-itens").hidden=!h; $("l-ver").textContent=h?"Ocultar detalhes":"Ver detalhes dos registros"; };
   $("l-env").onclick=function(){ tentativa=0; sincronizar(); };
-  $("l-itens").addEventListener("click",function(e){ var b=e.target.closest("[data-del]"); if(!b) return; if(!confirm("Apagar este registro? Ele ainda não foi enviado.")) return; var id=b.dataset.del; fila=fila.filter(function(x){return x.id!==id}); filaDel(id).then(function(){ desenhaLista(); desenhaFila(); }); });
+  $("l-itens").addEventListener("click",function(e){ var b=e.target.closest("[data-del]"); if(!b||b.disabled) return; var id=b.dataset.del, noServ=b.dataset.env==="1";
+    if(!confirm("Apagar este DNA? Não dá para desfazer.")) return;
+    var tira=function(){ fila=fila.filter(function(x){return x.id!==id}); if(meusAll) meusAll=meusAll.filter(function(x){return x.id!==id}); return filaDel(id).then(function(){ desenhaLista(); desenhaFila(); if(tela==="form") desenhaForm(); }); };
+    if(!noServ){ tira(); return; }   // ainda só neste celular: basta tirar daqui (se o envio já estiver a caminho, apaga também no servidor)
+    if(navigator.onLine===false||!eu||!eu.tok){ alert("Para apagar um DNA que já foi enviado é preciso estar com internet."); return; }
+    b.disabled=true; b.textContent="Apagando…";
+    api("POST",null,{acao:"apagar",k:eu.k,tok:eu.tok,id:id}).then(function(r){ if(r&&r.ok) return tira(); throw new Error("x"); }).catch(function(){ b.disabled=false; b.innerHTML=icone("lixo")+"Apagar este DNA"; alert("Não consegui apagar agora. Tente de novo com sinal."); }); });
   $("inst-x").onclick=function(){ $("inst").hidden=true; try{ localStorage.setItem("dna-inst","1"); }catch(e){} };
   window.addEventListener("online",function(){ atualizaRede(); tentativa=0; carregaNomes().then(sincronizar); carregaFotos(); });
   window.addEventListener("offline",function(){ atualizaRede(); desenhaFila(); });
-  document.addEventListener("visibilitychange",function(){ if(!document.hidden){ atualizaRede(); sincronizar(); if(nomes&&Date.now()-nomes.at>36e5) carregaNomes().then(function(){ if(tela==="form") desenhaForm(); }); if(Date.now()-fotosAt>36e5) carregaFotos(); } });
+  document.addEventListener("visibilitychange",function(){ if(!document.hidden){ atualizaRede(); sincronizar(); if(!nomes||Date.now()-nomes.at>6e4) carregaNomes().then(function(){ if(tela==="form") desenhaForm(); if(tela==="quem") desenhaBusca(); }); if(Date.now()-fotosAt>3e5) carregaFotos(); } });
 }
+setInterval(function(){ if(!document.hidden&&tela==="quem"&&navigator.onLine!==false) carregaNomes().then(function(){ if(tela==="quem") desenhaBusca(); }); },20000);
 function inicia(){
   // Funciona no aplicativo instalado E direto no navegador (celular ou computador).
   try{ var cq=new URLSearchParams(location.search).get("c"); if(cq) localStorage.setItem("dna-c",cq); }catch(e){}
@@ -499,6 +513,7 @@ function inicia(){
     // atualização na hora: confere se há versão nova ao abrir e sempre que o app volta para a frente; quando a versão nova assume, recarrega sozinho
     var tinha=!!navigator.serviceWorker.controller, recarregou=false;
     navigator.serviceWorker.addEventListener("controllerchange",function(){ if(!tinha){ tinha=true; return; } if(recarregou) return; recarregou=true; location.reload(); });
+    navigator.serviceWorker.addEventListener("message",function(ev){ if(ev.data&&ev.data.dna==="enviado") filaTodos().then(function(L){ fila=L||[]; desenhaFila(); if(tela==="lista") desenhaLista(); }); });
     navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(function(reg){
       var confere=function(){ try{ reg.update(); }catch(e){} };
       confere(); document.addEventListener("visibilitychange",function(){ if(!document.hidden) confere(); }); setInterval(confere,5*60*1000);
