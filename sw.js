@@ -1,5 +1,5 @@
 ﻿// Guarda o app no celular para abrir SEM internet. Mudou o app? Troque o número de V para todos receberem a versão nova.
-const V = "dna-v1";
+const V = "dna-v3";
 const ARQ = ["./", "index.html", "config.js", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => c.addAll(ARQ)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => {
