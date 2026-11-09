@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Instalar DNA · De Olho na Área</title>
+<meta name="theme-color" content="#1b3a73">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+*{box-sizing:border-box}html,body{margin:0}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;background:#1b3a73;color:#fff;font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;text-align:center}
+.ic{width:104px;height:104px;border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,.35);margin-bottom:18px}
+h1{margin:0 0 6px;font-size:24px}
+p{margin:0 0 18px;opacity:.92}
+.card{width:100%;max-width:380px;background:#fff;color:#14213d;border-radius:18px;padding:20px;box-shadow:0 12px 36px rgba(0,0,0,.25);text-align:left}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:15px 16px;font:700 17px system-ui,sans-serif;cursor:pointer;text-align:center;text-decoration:none}
+.btn.p{background:#1b3a73;color:#fff}.btn.s{background:#eef2f9;color:#1b3a73;margin-top:10px}
+.btn[hidden],.passos[hidden],.ok[hidden],.aviso[hidden]{display:none}
+.passos{margin:0;padding-left:0;list-style:none;counter-reset:n}
+.passos li{counter-increment:n;display:flex;gap:12px;align-items:flex-start;margin:0 0 14px;font-size:15.5px}
+.passos li::before{content:counter(n);flex:none;width:28px;height:28px;border-radius:50%;background:#1b3a73;color:#fff;font:700 14px/28px system-ui;text-align:center}
+.ok{font-weight:700;color:#17804a;text-align:center;margin:0 0 12px}
+.aviso{background:#fff4e0;color:#7a4b00;border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:14.5px}
+small{display:block;margin-top:14px;opacity:.8;font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+<img class="ic" src="icon-192.png" alt="">
+<h1>DNA · De Olho na Área</h1>
+<p>Instale o aplicativo no seu celular.<br>Funciona até sem internet.</p>
+
+<div class="card">
+  <div class="ok" id="ok" hidden>✓ Aplicativo instalado! Abra pelo ícone na tela inicial.</div>
+  <div class="aviso" id="av-safari" hidden><b>Abra este link no Safari.</b> No iPhone só o Safari instala aplicativos.<button class="btn s" id="copia" type="button">Copiar link</button></div>
+
+  <button class="btn p" id="instalar" type="button" hidden>Instalar aplicativo</button>
+
+  <ol class="passos" id="p-ios" hidden>
+    <li><span>Toque em <b>Compartilhar</b> (o quadrado com a seta para cima, na barra de baixo).</span></li>
+    <li><span>Role e toque em <b>Adicionar à Tela de Início</b>.</span></li>
+    <li><span>Toque em <b>Adicionar</b>. Abra sempre pelo ícone novo.</span></li>
+  </ol>
+
+  <ol class="passos" id="p-and" hidden>
+    <li><span>Toque no menu <b>⋮</b> do navegador (canto de cima).</span></li>
+    <li><span>Toque em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.</span></li>
+    <li><span>Confirme. O ícone aparece na tela inicial.</span></li>
+  </ol>
+
+  <a class="btn s" id="abrir" href="index.html">Abrir o formulário agora</a>
+</div>
+<small>Esta página sempre instala a versão mais recente.</small>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  var ua=navigator.userAgent, ios=/iphone|ipad|ipod/i.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  var safari=ios&&/safari/i.test(ua)&&!/crios|fxios|edgios|opios|gsa/i.test(ua);
+  var standalone=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone;
+  var c=""; try{ c=new URLSearchParams(location.search).get("c")||""; }catch(e){}
+  var destino="index.html"+(c?"?c="+encodeURIComponent(c):"");
+  $("abrir").href=destino;
+  $("abrir").addEventListener("click",function(){ try{ localStorage.setItem("dna-pular","1"); }catch(e){} });   // quem escolhe usar sem instalar não é mais redirecionado para cá
+  if(standalone){ location.replace(destino); return; }   // já está no aplicativo: vai direto para o formulário
+
+  var promptInst=null;
+  if(ios){
+    if(safari){ $("p-ios").hidden=false; } else { $("av-safari").hidden=false; $("copia").onclick=function(){ var u=location.href; (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(function(){ $("copia").textContent="Link copiado ✓"; },function(){ $("copia").textContent="Copie o endereço do navegador"; }); }; }
+  }else{
+    // Android/Chrome: botão de um toque quando o navegador libera; senão, mostra o caminho pelo menu
+    $("p-and").hidden=false;
+    window.addEventListener("beforeinstallprompt",function(e){ e.preventDefault(); promptInst=e; $("instalar").hidden=false; $("p-and").hidden=true; });
+    setTimeout(function(){ if(!promptInst) $("p-and").hidden=false; },1500);
+  }
+  $("instalar").onclick=function(){ if(!promptInst) return; var p=promptInst; promptInst=null; p.prompt(); p.userChoice.then(function(r){ if(r&&r.outcome==="accepted"){ $("instalar").hidden=true; $("ok").hidden=false; } else { $("instalar").hidden=false; promptInst=p; } }); };
+  window.addEventListener("appinstalled",function(){ $("instalar").hidden=true; $("p-and").hidden=true; $("ok").hidden=false; });
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(function(){});
+})();
+</script>
+</body>
+</html>
