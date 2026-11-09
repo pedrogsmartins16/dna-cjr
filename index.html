@@ -53,7 +53,6 @@ textarea{min-height:104px;resize:vertical}
 .av img{width:100%;height:100%;object-fit:cover;display:block}
 .av.g{width:104px;height:104px;font-size:34px;box-shadow:0 8px 24px rgba(27,58,115,.3);border:4px solid #fff}
 .av.m{width:60px;height:60px;font-size:20px;box-shadow:0 4px 14px rgba(27,58,115,.25);border:3px solid #fff}
-.av.carrega{animation:pisca 1.1s ease-in-out infinite}@keyframes pisca{50%{opacity:.55}}
 /* quem é você */
 .res{display:flex;flex-direction:column;gap:9px;margin-top:14px}
 .res button{display:flex;align-items:center;gap:12px;text-align:left;border:2px solid var(--line);background:#fff;border-radius:16px;padding:11px 12px;cursor:pointer;min-height:64px}
@@ -146,7 +145,7 @@ textarea{min-height:104px;resize:vertical}
   <section id="s-senha" hidden>
     <div class="card sen">
       <button class="voltar" id="sen-volta" type="button"><svg class="ico"><use href="#i-volta"/></svg>Escolher outro nome</button>
-      <div class="av g carrega" id="sen-av">?</div>
+      <div class="av g" id="sen-av">?</div>
       <h1 id="sen-n"></h1>
       <div class="meta" id="sen-m"></div>
       <div class="campo"><label class="lb" for="sen">Senha <em>*</em></label>
@@ -207,7 +206,7 @@ var CFG=window.DNA_CFG||{}, URL_API=(CFG.url||"").trim(), $=function(i){return d
 var AREAS=["SILVICULTURA","COLHEITA","LOGÍSTICA","OUTROS"];
 var FAB={rrp:"SUZANO - RIBAS DO RIO PARDO (PROJETO CERRADO)",tls:"SUZANO - TRÊS LAGOAS (PROJETO HORIZONTE)"};
 var FABC={rrp:"Ribas do Rio Pardo",tls:"Três Lagoas"};
-var db=null, mem={kv:{},fila:{}}, semBanco=false, codigo="", eu=null, nomes=null, fotos={}, fila=[], sel={area:"",fab:""}, esc_=null, sincEm=false, tentativa=0, tRetry=null, tela="", perOff=0, meusCache={};
+var db=null, mem={kv:{},fila:{}}, semBanco=false, codigo="", eu=null, nomes=null, fotos={}, fv="", fotosAt=0, carFot=false, fila=[], sel={area:"",fab:""}, esc_=null, sincEm=false, tentativa=0, tRetry=null, tela="", perOff=0, meusCache={};
 
 /* ---------- armazenamento (IndexedDB; se o navegador bloquear, guarda só enquanto a página estiver aberta) ---------- */
 function abre(){return new Promise(function(ok){
@@ -243,8 +242,27 @@ function periodo(off){
   var MES=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
   return {ini:isoD(a),fim:isoD(b),rot:p2(a.getDate())+"/"+p2(a.getMonth()+1)+" a "+p2(b.getDate())+"/"+p2(b.getMonth()+1)+"/"+b.getFullYear(),mes:MES[b.getMonth()]+"/"+b.getFullYear()};
 }
-function avatar(cls,k,nome,carr){
-  var f=k&&fotos[k]; return '<div class="av'+(cls?" "+cls:"")+(carr&&!f?" carrega":"")+'">'+(f?'<img alt="" src="'+esc(f)+'">':esc(ini(nome)))+'</div>';
+function avatar(cls,k,nome){
+  var f=k&&fotos[k]; return '<div class="av'+(cls?" "+cls:"")+'">'+(f?'<img alt="" src="'+esc(f)+'">':esc(ini(nome)))+'</div>';
+}
+/* ---------- fotos: todas baixadas uma vez e guardadas no celular (aparecem na hora, ao lado do nome; funcionam sem internet) ---------- */
+function pintaFotos(){
+  [].forEach.call(document.querySelectorAll("#res button[data-k]"),function(b){ var k=b.dataset.k, av=b.querySelector(".av"); if(av&&fotos[k]&&!av.querySelector("img")) av.innerHTML='<img alt="" src="'+esc(fotos[k])+'">'; });
+  if(esc_&&tela==="senha"&&fotos[esc_.k]){ var a=$("sen-av"); if(a&&!a.querySelector("img")) a.innerHTML='<img alt="" src="'+esc(fotos[esc_.k])+'">'; }
+  if(eu&&tela==="form"&&fotos[eu.k]){ var a2=$("eu-av"); if(a2&&!a2.querySelector("img")) a2.innerHTML='<img alt="" src="'+esc(fotos[eu.k])+'">'; }
+}
+function carregaFotos(){
+  if(!URL_API||!codigo||navigator.onLine===false||carFot) return Promise.resolve(false);
+  carFot=true; var novoFv="";
+  function pag(ini){
+    return api("GET",{acao:"fotos",codigo:codigo,fv:fv,ini:ini,lim:60}).then(function(r){
+      if(!r||!r.ok) throw new Error("fotos");
+      if(r.mudou===false) return false;
+      novoFv=r.fv; Object.keys(r.fotos||{}).forEach(function(k){ fotos[k]=r.fotos[k]; }); pintaFotos();
+      return r.prox!=null?pag(r.prox):true;
+    });
+  }
+  return pag(0).then(function(mudou){ fotosAt=Date.now(); if(mudou){ fv=novoFv; return Promise.all([kvSet("fotos",fotos),kvSet("fv",fv)]); } }).catch(function(){}).then(function(){ carFot=false; return true; });
 }
 
 /* ---------- rede ---------- */
@@ -277,8 +295,8 @@ function desenhaBusca(){
   var q=$("q").value, L=busca(q), box=$("res");
   if(!nomes||!(nomes.lista||[]).length){ box.innerHTML='<div class="aviso w">A lista de nomes ainda não chegou. Conecte-se à internet uma vez para baixar.</div>'; return; }
   if(!q.trim()){ box.innerHTML=""; return; }
-  box.innerHTML=L.length?L.map(function(o,i){return '<button type="button" data-i="'+i+'"><span class="av">'+esc(ini(o.n))+'</span><span><b>'+esc(titulo(o.n))+'</b><small>'+esc(o.c==="op"?"Operador de grua":"Motorista")+(o.f&&FABC[o.f]?" · "+esc(FABC[o.f]):"")+'</small></span><span class="go">'+icone("seta")+'</span></button>'}).join(""):'<div class="aviso r">Nenhum nome encontrado. Confira a escrita. Se o seu nome não aparece, você ainda não tem acesso: fale com o responsável.</div>';
-  box._L=L;
+  var h=L.length?L.map(function(o,i){return '<button type="button" data-i="'+i+'" data-k="'+esc(o.k)+'">'+avatar("",o.k,o.n)+'<span><b>'+esc(titulo(o.n))+'</b><small>'+esc(o.c==="op"?"Operador de grua":"Motorista")+(o.f&&FABC[o.f]?" · "+esc(FABC[o.f]):"")+'</small></span><span class="go">'+icone("seta")+'</span></button>'}).join(""):'<div class="aviso r">Nenhum nome encontrado. Confira a escrita. Se o seu nome não aparece, você ainda não tem acesso: fale com o responsável.</div>';
+  box._L=L; if(box._h!==h){ box._h=h; box.innerHTML=h; }   // só redesenha se mudou: nada pisca
 }
 
 /* ---------- entrar (nome + senha = matrícula) ---------- */
@@ -291,9 +309,9 @@ function fotoDe(k){ // foto da pessoa: do celular, ou baixa do servidor (1 pedid
 function abreSenha(o){
   esc_=o; $("sen").value=""; $("sen-err").hidden=true; $("sen-ok").disabled=false; $("sen-ok").textContent="Entrar";
   $("sen-n").textContent=titulo(o.n); $("sen-m").textContent=(o.c==="op"?"Operador de grua":"Motorista")+(o.f&&FABC[o.f]?" · "+FABC[o.f]:"");
-  var av=$("sen-av"); av.className="av g"+(fotos[o.k]?"":" carrega"); av.innerHTML=fotos[o.k]?'<img alt="" src="'+esc(fotos[o.k])+'">':esc(ini(o.n));
+  var av=$("sen-av"); av.className="av g"; av.innerHTML=fotos[o.k]?'<img alt="" src="'+esc(fotos[o.k])+'">':esc(ini(o.n));
   mostra("senha"); setTimeout(function(){ $("sen").focus(); },150);
-  fotoDe(o.k).then(function(f){ if(esc_!==o) return; av.classList.remove("carrega"); if(f) av.innerHTML='<img alt="" src="'+esc(f)+'">'; });
+  if(!fotos[o.k]) fotoDe(o.k).then(function(f){ if(esc_!==o||!f||av.querySelector("img")) return; av.innerHTML='<img alt="" src="'+esc(f)+'">'; });
 }
 function entrar(){
   var o=esc_, s=$("sen").value.trim(), er=$("sen-err"); er.hidden=true; if(!o) return;
@@ -330,7 +348,7 @@ function contaPeriodo(off){
 }
 function desenhaForm(){
   if(!eu) return;
-  $("eu-av").outerHTML=avatar("m",eu.k,eu.n,true).replace('class="av m','id="eu-av" class="av m');
+  $("eu-av").outerHTML=avatar("m",eu.k,eu.n).replace('class="av m','id="eu-av" class="av m');
   $("eu-n").textContent=titulo(eu.n);
   $("eu-c").innerHTML='<span class="tag az">'+esc(eu.c==="op"?"Operador de grua":"Motorista")+'</span>'+(eu.f&&FABC[eu.f]?'<span class="tag vd">'+esc(FABC[eu.f])+'</span>':'');
   var c=contaPeriodo(0), pct=Math.min(100,c.n/2*100);
@@ -430,7 +448,7 @@ function ligaEventos(){
     if(navigator.onLine===false){ er.textContent="Sem internet. Na primeira vez é preciso estar com sinal."; er.hidden=false; return; }
     $("cod-ok").disabled=true; $("cod-ok").textContent="Verificando…";
     api("GET",{acao:"nomes",codigo:c,v:""}).then(function(r){ $("cod-ok").disabled=false; $("cod-ok").textContent="Continuar";
-      if(r&&r.ok){ codigo=c; try{ localStorage.removeItem("dna-c"); }catch(e){} nomes={v:r.v,per:r.per,ini:r.ini,fim:r.fim,lista:r.lista||[],at:Date.now()}; return kvSet("codigo",c).then(function(){return kvSet("nomes",nomes)}).then(function(){ (eu&&eu.tok)?(desenhaForm(),mostra("form")):(mostra("quem"),$("q").focus()); }); }
+      if(r&&r.ok){ codigo=c; try{ localStorage.removeItem("dna-c"); }catch(e){} nomes={v:r.v,per:r.per,ini:r.ini,fim:r.fim,lista:r.lista||[],at:Date.now()}; carregaFotos(); return kvSet("codigo",c).then(function(){return kvSet("nomes",nomes)}).then(function(){ (eu&&eu.tok)?(desenhaForm(),mostra("form")):(mostra("quem"),$("q").focus()); }); }
       er.textContent=(r&&r.erro==="codigo")?"Código incorreto. Confira com o responsável.":"Não consegui validar agora. Tente de novo."; er.hidden=false;
     }).catch(function(){ $("cod-ok").disabled=false; $("cod-ok").textContent="Continuar"; er.textContent="Sem conexão com o servidor. Tente de novo com sinal."; er.hidden=false; }); };
   $("cod").addEventListener("keydown",function(e){ if(e.key==="Enter") $("cod-ok").click(); });
@@ -452,9 +470,9 @@ function ligaEventos(){
   $("l-env").onclick=function(){ tentativa=0; sincronizar(); };
   $("l-itens").addEventListener("click",function(e){ var b=e.target.closest("[data-del]"); if(!b) return; if(!confirm("Apagar este registro? Ele ainda não foi enviado.")) return; var id=b.dataset.del; fila=fila.filter(function(x){return x.id!==id}); filaDel(id).then(function(){ desenhaLista(); desenhaFila(); }); });
   $("inst-x").onclick=function(){ $("inst").hidden=true; try{ localStorage.setItem("dna-inst","1"); }catch(e){} };
-  window.addEventListener("online",function(){ atualizaRede(); tentativa=0; carregaNomes().then(sincronizar); });
+  window.addEventListener("online",function(){ atualizaRede(); tentativa=0; carregaNomes().then(sincronizar); carregaFotos(); });
   window.addEventListener("offline",function(){ atualizaRede(); desenhaFila(); });
-  document.addEventListener("visibilitychange",function(){ if(!document.hidden){ atualizaRede(); sincronizar(); if(nomes&&Date.now()-nomes.at>36e5) carregaNomes().then(function(){ if(tela==="form") desenhaForm(); }); } });
+  document.addEventListener("visibilitychange",function(){ if(!document.hidden){ atualizaRede(); sincronizar(); if(nomes&&Date.now()-nomes.at>36e5) carregaNomes().then(function(){ if(tela==="form") desenhaForm(); }); if(Date.now()-fotosAt>36e5) carregaFotos(); } });
 }
 function inicia(){
   // SÓ NO APLICATIVO INSTALADO: aberto no navegador, o formulário não abre — vai direto para a tela de instalação.
@@ -474,8 +492,8 @@ function inicia(){
     }).catch(function(){});
   }
   if(!URL_API||/COLE_AQUI/i.test(URL_API)){ mostra("conf"); return; }
-  abre().then(function(){ return Promise.all([kvGet("codigo"),kvGet("eu"),kvGet("nomes"),kvGet("rascunho"),filaTodos(),kvGet("fotos")]); }).then(function(r){
-    codigo=r[0]||""; eu=(r[1]&&r[1].tok)?r[1]:null; nomes=r[2]||null; fila=r[4]||[]; fotos=r[5]||{}; var ras=r[3];
+  abre().then(function(){ return Promise.all([kvGet("codigo"),kvGet("eu"),kvGet("nomes"),kvGet("rascunho"),filaTodos(),kvGet("fotos"),kvGet("fv")]); }).then(function(r){
+    codigo=r[0]||""; eu=(r[1]&&r[1].tok)?r[1]:null; nomes=r[2]||null; fila=r[4]||[]; fotos=r[5]||{}; fv=r[6]||""; var ras=r[3];
     // lista guardada pela versão antiga (sem a chave "k" de cada pessoa): descarta e baixa de novo (senão o login diz "sem acesso")
     if(nomes&&!(nomes.lista||[]).every(function(x){return x&&x.k})) nomes=null;
     if(ras){ sel.area=ras.area||""; sel.fab=ras.fab||""; $("local").value=ras.local||""; $("desc").value=ras.desc||""; $("acoes").value=ras.acoes||""; }
@@ -487,7 +505,7 @@ function inicia(){
       return; }
     if(eu){ if(!sel.fab&&eu.f&&FAB[eu.f]) sel.fab=eu.f; desenhaForm(); mostra("form"); }
     else { mostra("quem"); desenhaBusca(); $("q").focus(); }
-    carregaNomes().then(function(m){ if(tela==="form") desenhaForm(); if(tela==="quem") desenhaBusca(); return sincronizar(); });
+    carregaNomes().then(function(m){ if(tela==="form") desenhaForm(); if(tela==="quem") desenhaBusca(); carregaFotos(); return sincronizar(); });
   });
 }
 inicia();
