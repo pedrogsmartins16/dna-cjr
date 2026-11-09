@@ -123,10 +123,8 @@ textarea{min-height:104px;resize:vertical}
   </defs>
 </svg>
 <header class="top">
-  <!-- mesma imagem do ícone do aplicativo (quadrado azul com "DNA"), sem a bolinha vermelha -->
-  <img class="lg" src="icon-192.png" alt="DNA" width="42" height="42">
   <div><b>De Olho na Área</b><small>CJR Florestal · registro de DNA</small></div>
-  <span id="net" class="net">online</span>
+  <span id="net" class="net" style="display:none"></span>
 </header>
 <main>
   <div id="inst" class="card inst" hidden><b>Use sem internet</b><p class="sub" style="margin:4px 0 0" id="inst-txt"></p><button class="x" id="inst-x" aria-label="Fechar">×</button></div>
@@ -200,9 +198,7 @@ textarea{min-height:104px;resize:vertical}
       <p class="sub" id="l-sub" style="margin:12px 0 0"></p>
       <button class="btn sec" id="l-env" hidden style="margin-top:14px">Enviar agora</button>
     </div>
-    <button class="lnk" id="l-ver" type="button" style="display:block;margin:0 auto 10px">Ver detalhes dos registros</button>
-    <div id="l-itens" hidden></div>
-    <p id="ver-app" style="text-align:center;font-size:12px;color:#8a94a8;margin:14px 0 0"></p>
+    <div id="l-itens"></div>
   </section>
 </main>
 <nav class="tabs" id="tabs" hidden>
@@ -400,7 +396,6 @@ function mostraOk(){
 }
 
 /* ---------- envio ---------- */
-var APP_V="dna-v17";
 function pedeSync(){ try{ if("serviceWorker" in navigator) navigator.serviceWorker.ready.then(function(r){
   if(r.sync) r.sync.register("dna-enviar").catch(function(){});
   try{ if(r.periodicSync) r.periodicSync.register("dna-enviar-p",{minInterval:15*60*1000}).catch(function(){}); }catch(e){}
@@ -449,14 +444,13 @@ function desenhaLista(){
   var fila_p=fila.filter(function(x){return x.st!=="e"}).length;
   $("l-sub").textContent=fila_p?fila_p+(fila_p===1?" registro aguardando":" registros aguardando")+" envio":"";
   $("l-env").hidden=!fila_p||navigator.onLine===false;
-  $("l-ver").hidden=!n;
   $("l-itens").innerHTML=L.map(function(x){ return '<div class="reg"><div class="h"><span>'+esc(br(x.dia))+' · '+esc(x.hora||"")+' · '+esc(x.area||"")+'</span><span class="chip '+(x.st==="e"?"e":"p")+'">'+(x.st==="e"?"enviado":"aguardando")+'</span></div><b>'+esc(x.local||"")+'</b><p>'+esc(x.descricao||"")+'</p>'+'<button class="apg" data-del="'+esc(x.id)+'" data-env="'+(x.st==="e"?"1":"0")+'" type="button">'+icone("lixo")+'Apagar este DNA</button></div>'; }).join("");
 }
 function carregaMeus(){   // todos os registros da pessoa (qualquer celular): daí saem os períodos que têm lançamento
   if(!eu||!eu.tok||!URL_API||!codigo||navigator.onLine===false) return Promise.resolve();
   return api("GET",{acao:"meus",k:eu.k,tok:eu.tok,ini:"",fim:""}).then(function(r){ if(r&&r.ok){ meusAll=r.regs||[]; if(tela==="lista") desenhaLista(); } }).catch(function(){});
 }
-function abreLista(){ $("ver-app").textContent="Versão do aplicativo: "+APP_V+(("serviceWorker" in navigator&&"SyncManager" in window)?" · envio automático ativo":" · envio automático só com o app aberto"); $("l-itens").hidden=true; $("l-ver").textContent="Ver detalhes dos registros"; desenhaLista(); mostra("lista"); carregaMeus(); }
+function abreLista(){ desenhaLista(); mostra("lista"); carregaMeus(); }
 
 /* ---------- instalação / sem internet ---------- */
 var promptInst=null;
@@ -496,9 +490,7 @@ function ligaEventos(){
   $("ok-novo").onclick=function(){ desenhaForm(); mostra("form"); };
   $("t-novo").onclick=function(){ (eu&&eu.tok)?(desenhaForm(),mostra("form")):mostra("quem"); };
   $("t-lista").onclick=abreLista;
-  $("l-per").addEventListener("change",function(){ perSel=$("l-per").value; desenhaLista(); });
-  $("l-ver").onclick=function(){ var h=$("l-itens").hidden; $("l-itens").hidden=!h; $("l-ver").textContent=h?"Ocultar detalhes":"Ver detalhes dos registros"; };
-  $("l-env").onclick=function(){ tentativa=0; sincronizar(); };
+  $("l-per").addEventListener("change",function(){ perSel=$("l-per").value; desenhaLista(); });  $("l-env").onclick=function(){ tentativa=0; sincronizar(); };
   $("l-itens").addEventListener("click",function(e){ var b=e.target.closest("[data-del]"); if(!b||b.disabled) return; var id=b.dataset.del, noServ=b.dataset.env==="1";
     if(!confirm("Apagar este DNA? Não dá para desfazer.")) return;
     var tira=function(){ fila=fila.filter(function(x){return x.id!==id}); if(meusAll) meusAll=meusAll.filter(function(x){return x.id!==id}); return filaDel(id).then(function(){ desenhaLista(); desenhaFila(); if(tela==="form") desenhaForm(); }); };
