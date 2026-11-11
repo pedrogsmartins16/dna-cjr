@@ -412,7 +412,7 @@ function desenhaAviso(){ var c=$("avisos"); if(c) c.hidden=!(pushDa()&&eu&&eu.to
 function assinaPush(pedir){   // pedir=true: veio do toque no botão (aí pode perguntar a permissão)
   if(!pushDa()||!eu||!eu.tok) return Promise.resolve(false);
   var perm=Notification.permission, p=perm==="granted"?Promise.resolve("granted"):((pedir&&perm!=="denied")?Promise.resolve(Notification.requestPermission()):Promise.resolve(perm));
-  return p.then(function(r){ if(r!=="granted") return false;
+  return p.then(function(r){ desenhaAviso();   /* respondeu (permitiu ou negou): o cartão some na hora, sem esperar o servidor */ if(r!=="granted") return false;
     return navigator.serviceWorker.ready.then(function(reg){ return reg.pushManager.getSubscription().then(function(s){ return s||reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(VAPID)}); }); })
       .then(function(s){ var j=s.toJSON(), marca=eu.k+"|"+j.endpoint; return kvGet("pushOk").then(function(m){ if(m===marca) return true;
         return api("POST",null,{acao:"push",k:eu.k,tok:eu.tok,sub:j}).then(function(r){ if(r&&r.ok){ kvSet("pushOk",marca); return true; } return false; }); }); });
