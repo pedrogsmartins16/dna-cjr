@@ -132,6 +132,7 @@ textarea{min-height:104px;resize:vertical}
 </header>
 <main>
   <div id="inst" class="card inst" hidden><b>Use sem internet</b><p class="sub" style="margin:4px 0 0" id="inst-txt"></p><button class="x" id="inst-x" aria-label="Fechar">×</button></div>
+  <div id="avisos" class="card inst" hidden><b>Ative os avisos</b><p class="sub" style="margin:4px 0 0">Receba um lembrete antes de o período fechar. O aviso também envia sozinho os DNAs que ficaram guardados no celular, mesmo com o aplicativo fechado.<br><button class="btn" id="avisos-go" type="button" style="margin-top:8px;min-height:50px;font-size:16.5px">Ativar avisos</button></p></div>
 
   <section id="s-conf" hidden>
     <div class="card"><h1>Formulário ainda não configurado</h1><p class="sub">Peça ao responsável para colocar o endereço do servidor no arquivo config.js.</p></div>
@@ -403,6 +404,20 @@ function desenhaOpcoes(){
   $("c-fab").hidden=auto; $("fab-auto").hidden=true; $("o-fab").hidden=auto; if(auto){ sel.fab=eu.f; }
   else{ $("c-fab").querySelector(".lb").innerHTML='Fábrica em que está atuando <em>*</em>'; $("o-fab").innerHTML=Object.keys(FAB).map(function(k){return '<button type="button" class="opt" data-f="'+k+'" aria-pressed="'+(sel.fab===k)+'">'+FABC[k]+'<small style="display:block;font-weight:500;opacity:.8;font-size:12.5px">'+esc(FAB[k])+'</small></button>'}).join(""); }
 }
+/* ---------- avisos (web push): o lembrete do robô acorda o aplicativo fechado, que envia o que estiver guardado ---------- */
+var VAPID="BOHEgULZCMb0DXY1BNAD62vnQIVskpXE_ysSMK63VXlzlfrqXPOT_OSmD5DVJs3UZvwFbSFnRo4iwPlrt7KjEHo", pushTentou=false;
+function b64u(s){ var p="====".slice(0,(4-s.length%4)%4), b=atob((s+p).replace(/-/g,"+").replace(/_/g,"/")), a=new Uint8Array(b.length); for(var i=0;i<b.length;i++) a[i]=b.charCodeAt(i); return a; }
+function pushDa(){ return ("serviceWorker" in navigator)&&("PushManager" in window)&&("Notification" in window); }
+function desenhaAviso(){ var c=$("avisos"); if(c) c.hidden=!(pushDa()&&eu&&eu.tok&&(tela==="form"||tela==="lista"||tela==="ok")&&Notification.permission==="default"); }
+function assinaPush(pedir){   // pedir=true: veio do toque no botão (aí pode perguntar a permissão)
+  if(!pushDa()||!eu||!eu.tok) return Promise.resolve(false);
+  var perm=Notification.permission, p=perm==="granted"?Promise.resolve("granted"):((pedir&&perm!=="denied")?Promise.resolve(Notification.requestPermission()):Promise.resolve(perm));
+  return p.then(function(r){ if(r!=="granted") return false;
+    return navigator.serviceWorker.ready.then(function(reg){ return reg.pushManager.getSubscription().then(function(s){ return s||reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(VAPID)}); }); })
+      .then(function(s){ var j=s.toJSON(), marca=eu.k+"|"+j.endpoint; return kvGet("pushOk").then(function(m){ if(m===marca) return true;
+        return api("POST",null,{acao:"push",k:eu.k,tok:eu.tok,sub:j}).then(function(r){ if(r&&r.ok){ kvSet("pushOk",marca); return true; } return false; }); }); });
+  }).catch(function(){ return false; }).then(function(ok){ desenhaAviso(); return ok; });
+}
 function contaPeriodo(off){
   var P=periodo(off||0), d=0, vi=nomes&&eu?(nomes.lista||[]).filter(function(o){return o.k===eu.k})[0]:null;
   // do celular só contam os ainda não enviados e os enviados há pouco (até o robô atualizar a lista); os antigos já estão em "d" — assim um registro apagado no Portal não fica preso na conta
@@ -417,7 +432,7 @@ function desenhaForm(){
   $("eu-c").innerHTML='<span class="tag az">'+esc(eu.c==="op"?"Operador de grua":"Motorista")+'</span>'+(eu.f&&FABC[eu.f]?'<span class="tag vd">'+esc(FABC[eu.f])+'</span>':'');
   var c=contaPeriodo(0), cumpriu=c.n>=2, pct=Math.min(100,c.n/2*100);
   $("per").innerHTML='<div class="l"><span>DNAs no período <b>'+c.P.rot+'</b></span><b>'+c.n+' · meta 2'+(cumpriu?' ✓':'')+'</b></div><div class="bar"><i style="width:'+pct+'%"></i></div>'+(c.n>2?'<div class="mais">Meta batida! Pode continuar lançando.</div>':'');
-  desenhaOpcoes(); desenhaFila();
+  desenhaOpcoes(); desenhaFila(); desenhaAviso(); if(!pushTentou){ pushTentou=true; assinaPush(false); }
   if(!fotos[eu.k]) fotoDe(eu.k).then(function(f){ if(f&&eu){ kvSet("fotos",fotos); if(tela==="form") $("eu-av").outerHTML=avatar("m",eu.k,eu.n).replace('class="av m','id="eu-av" class="av m'); } });
 }
 function desenhaFila(){
@@ -561,6 +576,7 @@ function ligaEventos(){
     if(navigator.onLine===false||!eu||!eu.tok){ alert("Para apagar um DNA que já foi enviado é preciso estar com internet."); return; }
     b.disabled=true; b.textContent="Apagando…";
     api("POST",null,{acao:"apagar",k:eu.k,tok:eu.tok,id:id}).then(function(r){ if(r&&r.ok) return tira(r.d); throw new Error("x"); }).catch(function(){ b.disabled=false; b.innerHTML=icone("lixo")+"Apagar este DNA"; alert("Não consegui apagar agora. Tente de novo com sinal."); }); });
+  $("avisos-go").onclick=function(){ var b=$("avisos-go"); b.disabled=true; assinaPush(true).then(function(ok){ b.disabled=false; if(!ok&&("Notification" in window)&&Notification.permission==="denied") alert("Os avisos estão bloqueados neste celular. Libere nas configurações do site para ativar."); }); };
   $("inst-x").onclick=function(){ $("inst").hidden=true; try{ sessionStorage.setItem("dna-inst-x","1"); }catch(e){} };   // fechar só esconde nesta visita; volta na próxima até instalar
   window.addEventListener("online",function(){ atualizaRede(); tentativa=0; sincronizar(); carregaNomes().then(sincronizar); carregaFotos(); });
   window.addEventListener("offline",function(){ atualizaRede(); desenhaFila(); });

@@ -1,7 +1,7 @@
 // Guarda o app no celular para abrir SEM internet e ENVIA os registros pendentes sozinho quando o sinal volta (mesmo com o app fechado).
 // Atualização na hora: com internet o app sempre busca a versão mais nova do servidor (ignora o cache do navegador);
 // sem internet (ou servidor lento, 4 s) usa a cópia guardada. Mudou o app? Troque o número de V (garante limpar o cache antigo).
-const V = "dna-v31";
+const V = "dna-v32";
 const ARQ = ["./", "index.html", "config.js", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => Promise.all(ARQ.map(a => fetch(a, { cache: "no-store" }).then(r => r.ok && c.put(a, r)).catch(() => {})))).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => {
@@ -61,3 +61,17 @@ self.addEventListener("sync", e => { if (e.tag.indexOf("dna-enviar") === 0) e.wa
 self.addEventListener("periodicsync", e => { if (e.tag === "dna-enviar-p") e.waitUntil(insistir().catch(() => {})); });   // 2ª via: o Chrome acorda o app de tempos em tempos
 self.addEventListener("activate", e => { e.waitUntil(tenta()); });                                        // 3ª via: sempre que o app é ativado/atualizado
 self.addEventListener("message", e => { if (e.data && e.data.dna === "tentar") e.waitUntil(tenta()); });  // 4ª via: o app pede (ex.: sinal voltou)
+// ---- AVISO (web push) do robô: acorda o app fechado, manda o que estiver guardado e mostra o resultado ----
+const contaPend = () => idb(async d => (await rq(d.transaction("fila").objectStore("fila").getAll())).filter(x => x.st !== "e" && x.tok).length).catch(() => 0);
+self.addEventListener("push", e => {
+  let m = {}; try { m = e.data ? e.data.json() : {}; } catch (_) {}
+  e.waitUntil((async () => {
+    let antes = 0, pend = 0;
+    try { antes = await contaPend(); if (antes) { try { await enviarPendentes(); } catch (_) {} } pend = await contaPend(); } catch (_) {}
+    const enviou = antes > 0 && pend === 0;
+    const t = enviou ? "DNA enviado ✓" : pend ? "Você tem DNA guardado no celular" : (m.t || "De Olho na Área");
+    const b = enviou ? "Os registros que estavam guardados neste celular foram enviados." : pend ? "Abra o aplicativo com internet para enviar e não perder o pagamento." : (m.b || "");
+    await self.registration.showNotification(t, { body: b, icon: "icon-192.png", badge: "icon-192.png", tag: "dna" });
+  })());
+});
+self.addEventListener("notificationclick", e => { e.notification.close(); e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(cs => cs.length ? cs[0].focus() : self.clients.openWindow("./"))); });
