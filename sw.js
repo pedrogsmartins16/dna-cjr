@@ -1,7 +1,7 @@
 // Guarda o app no celular para abrir SEM internet e ENVIA os registros pendentes sozinho quando o sinal volta (mesmo com o app fechado).
 // Atualização na hora: com internet o app sempre busca a versão mais nova do servidor (ignora o cache do navegador);
 // sem internet (ou servidor lento, 4 s) usa a cópia guardada. Mudou o app? Troque o número de V (garante limpar o cache antigo).
-const V = "dna-v25";
+const V = "dna-v26";
 const ARQ = ["./", "index.html", "config.js", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => Promise.all(ARQ.map(a => fetch(a, { cache: "no-store" }).then(r => r.ok && c.put(a, r)).catch(() => {})))).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => {
@@ -25,7 +25,7 @@ self.addEventListener("fetch", e => {
 });
 
 // ---- ENVIO EM SEGUNDO PLANO: o sinal voltou → manda os registros guardados, sem precisar abrir o app ----
-const idb = fn => new Promise((ok, er) => { const r = indexedDB.open("dna-campo", 1); r.onerror = () => er(r.error); r.onsuccess = () => { const d = r.result; Promise.resolve(fn(d)).then(v => { d.close(); ok(v); }, e => { d.close(); er(e); }); }; });
+const idb = fn => new Promise((ok, er) => { const r = indexedDB.open("dna-campo"); r.onerror = () => er(r.error); r.onsuccess = () => { const d = r.result; Promise.resolve(fn(d)).then(v => { d.close(); ok(v); }, e => { d.close(); er(e); }); }; });
 const rq = r => new Promise((ok, er) => { r.onsuccess = () => ok(r.result); r.onerror = () => er(r.error); });
 async function enviarPendentes() {
   const { url, pend } = await idb(async d => ({

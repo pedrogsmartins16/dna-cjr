@@ -237,8 +237,8 @@ var db=null, mem={kv:{},fila:{}}, semBanco=false, codigo="", eu=null, nomes=null
 
 /* ---------- armazenamento (IndexedDB; se o navegador bloquear, guarda só enquanto a página estiver aberta) ---------- */
 function abre(){return new Promise(function(ok){
-  try{ var r=indexedDB.open("dna-campo",1);
-    r.onupgradeneeded=function(){ var d=r.result; d.createObjectStore("kv"); d.createObjectStore("fila",{keyPath:"id"}); };
+  try{ var r=indexedDB.open("dna-campo",2);   // v2: recria o que faltar (celulares com o banco incompleto davam tela branca)
+    r.onupgradeneeded=function(){ var d=r.result; if(!d.objectStoreNames.contains("kv")) d.createObjectStore("kv"); if(!d.objectStoreNames.contains("fila")) d.createObjectStore("fila",{keyPath:"id"}); };
     r.onsuccess=function(){ db=r.result; ok(); }; r.onerror=function(){ semBanco=true; ok(); }; r.onblocked=function(){ semBanco=true; ok(); };
   }catch(e){ semBanco=true; ok(); } });}
 function rq(r){return new Promise(function(ok,er){ r.onsuccess=function(){ok(r.result)}; r.onerror=function(){er(r.error)}; });}
