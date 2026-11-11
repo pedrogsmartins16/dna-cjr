@@ -511,7 +511,7 @@ function abreLista(){ desenhaLista(); mostra("lista"); carregaMeus(); }
 var promptInst=null;
 function dicaInstalar(){
   var standalone=window.matchMedia&&matchMedia("(display-mode: standalone)").matches||navigator.standalone; if(standalone) return;
-  try{ if(localStorage.getItem("dna-inst")==="1") return; }catch(e){}
+  try{ if(/[?&]instalar=1/.test(location.search)){ localStorage.removeItem("dna-inst"); sessionStorage.removeItem("dna-inst-x"); } if(localStorage.getItem("dna-inst")==="1"||sessionStorage.getItem("dna-inst-x")==="1") return; }catch(e){}
   var ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
   var btn=(!ios&&promptInst)?'<br><button class="btn" id="inst-go" type="button" style="margin-top:8px;min-height:50px;font-size:16.5px">Instalar aplicativo</button>':'';
   $("inst-txt").innerHTML=(ios?'Para funcionar sem internet: toque em <b>Compartilhar</b> (□↑) e depois em <b>Adicionar à Tela de Início</b>.':(promptInst?'Instale o aplicativo para usar mesmo sem internet:':'Para funcionar sem internet: abra o menu do navegador (⋮) e toque em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.'))+btn;
@@ -556,7 +556,7 @@ function ligaEventos(){
     if(navigator.onLine===false||!eu||!eu.tok){ alert("Para apagar um DNA que já foi enviado é preciso estar com internet."); return; }
     b.disabled=true; b.textContent="Apagando…";
     api("POST",null,{acao:"apagar",k:eu.k,tok:eu.tok,id:id}).then(function(r){ if(r&&r.ok) return tira(); throw new Error("x"); }).catch(function(){ b.disabled=false; b.innerHTML=icone("lixo")+"Apagar este DNA"; alert("Não consegui apagar agora. Tente de novo com sinal."); }); });
-  $("inst-x").onclick=function(){ $("inst").hidden=true; try{ localStorage.setItem("dna-inst","1"); }catch(e){} };
+  $("inst-x").onclick=function(){ $("inst").hidden=true; try{ sessionStorage.setItem("dna-inst-x","1"); }catch(e){} };   // fechar só esconde nesta visita; volta na próxima até instalar
   window.addEventListener("online",function(){ atualizaRede(); tentativa=0; sincronizar(); carregaNomes().then(sincronizar); carregaFotos(); });
   window.addEventListener("offline",function(){ atualizaRede(); desenhaFila(); });
   document.addEventListener("visibilitychange",function(){ if(!document.hidden){ atualizaRede(); confereSenha(); sincronizar(); if(!nomes||Date.now()-nomes.at>6e4) carregaNomes().then(function(){ if(tela==="form") desenhaForm(); if(tela==="quem") desenhaBusca(); }); if(Date.now()-fotosAt>3e5) carregaFotos(); } });
