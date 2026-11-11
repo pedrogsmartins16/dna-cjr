@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
+<script>/* abrir o endereço com ?limpar=1 apaga o que o celular guardou (cópias antigas do app) e recarrega limpo */(function(){try{if(/[?&]limpar=1/.test(location.search)){var f=[];if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations)f.push(navigator.serviceWorker.getRegistrations().then(function(r){return Promise.all(r.map(function(x){return x.unregister()}))}));if(window.caches)f.push(caches.keys().then(function(k){return Promise.all(k.map(function(x){return caches.delete(x)}))}));Promise.all(f).catch(function(){}).then(function(){location.replace(location.pathname)})}}catch(e){}})();</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1b3a73">
