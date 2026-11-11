@@ -404,7 +404,8 @@ function desenhaOpcoes(){
 }
 function contaPeriodo(off){
   var P=periodo(off||0), d=0, vi=nomes&&eu?(nomes.lista||[]).filter(function(o){return o.k===eu.k})[0]:null;
-  var loc=fila.filter(function(x){ return x.k===eu.k&&x.dia>=P.ini&&x.dia<=P.fim; }).length;
+  // do celular só contam os ainda não enviados e os enviados há pouco (até o robô atualizar a lista); os antigos já estão em "d" — assim um registro apagado no Portal não fica preso na conta
+  var loc=fila.filter(function(x){ return x.k===eu.k&&x.dia>=P.ini&&x.dia<=P.fim&&(x.st!=="e"||(x.env||x.ts||0)>Date.now()-10*60*1000); }).length;
   if(!off&&vi) d=vi.d||0;   // a lista traz os DNAs do período atual (calculados pelo robô)
   return {n:Math.max(d,loc),P:P};
 }
