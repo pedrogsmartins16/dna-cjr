@@ -564,6 +564,9 @@ function ligaEventos(){
   $("inst-x").onclick=function(){ $("inst").hidden=true; try{ sessionStorage.setItem("dna-inst-x","1"); }catch(e){} };   // fechar só esconde nesta visita; volta na próxima até instalar
   window.addEventListener("online",function(){ atualizaRede(); tentativa=0; sincronizar(); carregaNomes().then(sincronizar); carregaFotos(); });
   window.addEventListener("offline",function(){ atualizaRede(); desenhaFila(); });
+  // saiu do aplicativo com registro guardado: renova o pedido de envio em segundo plano (o celular manda sozinho quando o sinal voltar, com o app fechado)
+  var aoSair=function(){ if(fila.some(function(x){return x.st!=="e"&&x.tok})){ kvSet("url",URL_API); pedeSync(); } };
+  document.addEventListener("visibilitychange",function(){ if(document.hidden) aoSair(); }); window.addEventListener("pagehide",aoSair);
   document.addEventListener("visibilitychange",function(){ if(!document.hidden){ atualizaRede(); confereSenha(); sincronizar(); if(!nomes||Date.now()-nomes.at>6e4) carregaNomes().then(function(){ if(tela==="form") desenhaForm(); if(tela==="quem") desenhaBusca(); }); if(Date.now()-fotosAt>3e5) carregaFotos(); } });
 }
 setInterval(function(){ if(!document.hidden&&tela==="quem"&&navigator.onLine!==false) carregaNomes().then(function(){ if(tela==="quem") desenhaBusca(); }); },20000);
