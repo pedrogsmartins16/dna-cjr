@@ -233,7 +233,7 @@ var CFG=window.DNA_CFG||{}, URL_API=(CFG.url||"").trim(), $=function(i){return d
 var AREAS=["SILVICULTURA","COLHEITA","LOGÍSTICA","OUTROS"];
 var FAB={rrp:"SUZANO - RIBAS DO RIO PARDO (PROJETO CERRADO)",tls:"SUZANO - TRÊS LAGOAS (PROJETO HORIZONTE)"};
 var FABC={rrp:"Ribas do Rio Pardo",tls:"Três Lagoas"};
-var db=null, mem={kv:{},fila:{}}, semBanco=false, codigo="", eu=null, nomes=null, fotos={}, fv="", fotosAt=0, carFot=false, fila=[], sel={area:"",fab:""}, esc_=null, sincEm=false, tentativa=0, tRetry=null, tela="", perSel="", meusAll=null;
+var db=null, mem={kv:{},fila:{}}, semBanco=false, codigo="", eu=null, nomes=null, fotos={}, fv="", fotosAt=0, carFot=false, fila=[], sel={area:"",fab:""}, esc_=null, sincEm=false, delAj=null, tentativa=0, tRetry=null, tela="", perSel="", meusAll=null;
 
 /* ---------- armazenamento (IndexedDB; se o navegador bloquear, guarda só enquanto a página estiver aberta) ---------- */
 function abre(){return new Promise(function(ok){
@@ -407,7 +407,7 @@ function contaPeriodo(off){
   var P=periodo(off||0), d=0, vi=nomes&&eu?(nomes.lista||[]).filter(function(o){return o.k===eu.k})[0]:null;
   // do celular só contam os ainda não enviados e os enviados há pouco (até o robô atualizar a lista); os antigos já estão em "d" — assim um registro apagado no Portal não fica preso na conta
   var loc=fila.filter(function(x){ return x.k===eu.k&&x.dia>=P.ini&&x.dia<=P.fim&&(x.st!=="e"||(x.env||x.ts||0)>Date.now()-10*60*1000); }).length;
-  if(!off&&vi) d=vi.d||0;   // a lista traz os DNAs do período atual (calculados pelo robô)
+  if(!off&&vi) d=vi.d||0; if(!off&&delAj&&Date.now()-delAj.t<180000) d=Math.min(d,delAj.d);   // acabou de apagar: vale o número já descontado, mesmo que a lista do servidor ainda esteja atrasada   // a lista traz os DNAs do período atual (calculados pelo robô)
   return {n:Math.max(d,loc),P:P};
 }
 function desenhaForm(){
@@ -438,7 +438,7 @@ function salvar(ev){
   ev.preventDefault(); if(!eu) return; if(!valida()){ var e=document.querySelector(".err:not([hidden])"); if(e&&e.scrollIntoView) e.scrollIntoView({block:"center",behavior:"smooth"}); return; }
   var d=new Date(), reg={id:novoId(),ts:d.getTime(),dia:hoje(),hora:p2(d.getHours())+":"+p2(d.getMinutes()),k:eu.k,tok:eu.tok,nome:eu.n,fab:sel.fab,fabrica:FAB[sel.fab],area:sel.area,local:$("local").value.trim(),descricao:$("desc").value.trim(),acoes:$("acoes").value.trim(),dev:(navigator.userAgent||"").slice(0,110),st:"p"};
   $("salvar").disabled=true;
-  filaPut(reg).then(function(){ fila.push(reg); return kvDel("rascunho"); }).then(function(){
+  filaPut(reg).then(function(){ fila.push(reg); delAj=null; return kvDel("rascunho"); }).then(function(){
     sel.area=""; $("local").value=""; $("desc").value=""; $("acoes").value=""; $("salvar").disabled=false; tentativa=0; meusAll=null;
     mostraOk(false); return sincronizar(); }).catch(function(){ $("salvar").disabled=false; alert("Não consegui salvar neste celular. Libere espaço ou tire do modo privado e tente de novo."); });
 }
@@ -546,21 +546,21 @@ function ligaEventos(){
   ["local","desc","acoes"].forEach(function(i){ $(i).addEventListener("input",function(){ $("e-"+i).hidden=true; rascunhoSalva(); }); });
   $("f").addEventListener("submit",salvar);
   $("ok-novo").onclick=function(){ desenhaForm(); mostra("form"); };
-  $("t-novo").onclick=function(){ (eu&&eu.tok)?(desenhaForm(),mostra("form")):mostra("quem"); };
+  $("t-novo").onclick=function(){ (eu&&eu.tok)?(desenhaForm(),mostra("form")):mostra("quem"); if(eu&&eu.tok) carregaNomes().then(function(){ if(tela==="form") desenhaForm(); }).catch(function(){}); };   // confere o número com o servidor toda vez que abre a aba
   $("t-lista").onclick=abreLista;
   $("l-per").addEventListener("change",function(){ perSel=$("l-per").value; desenhaLista(); });  $("l-env").onclick=function(){ tentativa=0; sincronizar(); };
   $("l-itens").addEventListener("click",function(e){ var b=e.target.closest("[data-del]"); if(!b||b.disabled) return; var id=b.dataset.del, noServ=b.dataset.env==="1";
     if(!confirm("Apagar este DNA? Não dá para desfazer.")) return;
-    var tira=function(){
+    var tira=function(dServ){
       // o número de DNAs no período cai na hora (a lista do servidor confirma em seguida: reconsulta alguns segundos depois)
       try{ var reg=fila.filter(function(x){return x.id===id})[0]||(meusAll||[]).filter(function(x){return x.id===id})[0], P0=periodo(0);
-        if(nomes&&eu&&reg&&(!reg.dia||(reg.dia>=P0.ini&&reg.dia<=P0.fim))){ var vi=(nomes.lista||[]).filter(function(o){return o.k===eu.k})[0]; if(vi&&vi.d>0){ vi.d--; kvSet("nomes",nomes); } } }catch(e){}
+        if(nomes&&eu&&reg&&(!reg.dia||(reg.dia>=P0.ini&&reg.dia<=P0.fim))){ var vi=(nomes.lista||[]).filter(function(o){return o.k===eu.k})[0]; if(vi){ vi.d=(typeof dServ==="number")?dServ:Math.max(0,(vi.d||0)-1); delAj={t:Date.now(),d:vi.d}; kvSet("nomes",nomes); } } }catch(e){}
       [4000,12000,30000].forEach(function(ms){ setTimeout(function(){ carregaNomes().then(function(){ if(tela==="form") desenhaForm(); }).catch(function(){}); },ms); });
       fila=fila.filter(function(x){return x.id!==id}); if(meusAll) meusAll=meusAll.filter(function(x){return x.id!==id}); return filaDel(id).then(function(){ desenhaLista(); desenhaFila(); if(tela==="form") desenhaForm(); }); };
     if(!noServ){ tira(); return; }   // ainda só neste celular: basta tirar daqui (se o envio já estiver a caminho, apaga também no servidor)
     if(navigator.onLine===false||!eu||!eu.tok){ alert("Para apagar um DNA que já foi enviado é preciso estar com internet."); return; }
     b.disabled=true; b.textContent="Apagando…";
-    api("POST",null,{acao:"apagar",k:eu.k,tok:eu.tok,id:id}).then(function(r){ if(r&&r.ok) return tira(); throw new Error("x"); }).catch(function(){ b.disabled=false; b.innerHTML=icone("lixo")+"Apagar este DNA"; alert("Não consegui apagar agora. Tente de novo com sinal."); }); });
+    api("POST",null,{acao:"apagar",k:eu.k,tok:eu.tok,id:id}).then(function(r){ if(r&&r.ok) return tira(r.d); throw new Error("x"); }).catch(function(){ b.disabled=false; b.innerHTML=icone("lixo")+"Apagar este DNA"; alert("Não consegui apagar agora. Tente de novo com sinal."); }); });
   $("inst-x").onclick=function(){ $("inst").hidden=true; try{ sessionStorage.setItem("dna-inst-x","1"); }catch(e){} };   // fechar só esconde nesta visita; volta na próxima até instalar
   window.addEventListener("online",function(){ atualizaRede(); tentativa=0; sincronizar(); carregaNomes().then(sincronizar); carregaFotos(); });
   window.addEventListener("offline",function(){ atualizaRede(); desenhaFila(); });
