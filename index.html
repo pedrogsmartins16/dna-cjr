@@ -592,7 +592,18 @@ function inicia(){
     else { mostra("quem"); desenhaBusca(); $("q").focus(); }
     confereSenha();
     carregaNomes().then(function(m){ if(tela==="form") desenhaForm(); if(tela==="quem") desenhaBusca(); carregaFotos(); return sincronizar(); });
-  });
+  }).catch(falhaInicio);
+}
+/* se a abertura travar (dados guardados no celular com problema): limpa lista de nomes/fotos/login guardados (os registros pendentes NÃO são apagados) e recarrega uma vez; se repetir, mostra o motivo na tela */
+function falhaInicio(e){
+  var msg=String((e&&e.message)||e||"erro"); try{ console.error(e); }catch(_){}
+  var jaTentou=false; try{ jaTentou=sessionStorage.getItem("dna-rec")==="1"; }catch(_){}
+  var limpa=function(){ try{ if(db){ var tx=db.transaction("kv","readwrite"), s=tx.objectStore("kv"); ["nomes","fotos","fv","eu","rascunho"].forEach(function(k){ s.delete(k); }); return new Promise(function(ok){ tx.oncomplete=ok; tx.onerror=ok; tx.onabort=ok; }); } }catch(_){} return Promise.resolve(); };
+  if(!jaTentou){ try{ sessionStorage.setItem("dna-rec","1"); }catch(_){} limpa().then(function(){ location.reload(); }); return; }
+  var b=document.createElement("div"); b.style.cssText="margin:16px;padding:16px;border-radius:14px;background:#fff;border:1px solid #e0b4b4;color:#222;font:15px system-ui,sans-serif";
+  b.innerHTML="<b>Não foi possível abrir o aplicativo.</b><p style='margin:8px 0;word-break:break-word'>"+msg.replace(/[<>&]/g,"")+"</p><button type='button' style='padding:12px 18px;border:0;border-radius:10px;background:#1b3a73;color:#fff;font-size:16px'>Tentar de novo</button>";
+  b.querySelector("button").onclick=function(){ try{ sessionStorage.removeItem("dna-rec"); }catch(_){} limpa().then(function(){ location.reload(); }); };
+  document.body.appendChild(b);
 }
 inicia();
 })();
