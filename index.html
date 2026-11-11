@@ -551,7 +551,12 @@ function ligaEventos(){
   $("l-per").addEventListener("change",function(){ perSel=$("l-per").value; desenhaLista(); });  $("l-env").onclick=function(){ tentativa=0; sincronizar(); };
   $("l-itens").addEventListener("click",function(e){ var b=e.target.closest("[data-del]"); if(!b||b.disabled) return; var id=b.dataset.del, noServ=b.dataset.env==="1";
     if(!confirm("Apagar este DNA? Não dá para desfazer.")) return;
-    var tira=function(){ fila=fila.filter(function(x){return x.id!==id}); if(meusAll) meusAll=meusAll.filter(function(x){return x.id!==id}); return filaDel(id).then(function(){ desenhaLista(); desenhaFila(); if(tela==="form") desenhaForm(); }); };
+    var tira=function(){
+      // o número de DNAs no período cai na hora (a lista do servidor confirma em seguida: reconsulta alguns segundos depois)
+      try{ var reg=fila.filter(function(x){return x.id===id})[0]||(meusAll||[]).filter(function(x){return x.id===id})[0], P0=periodo(0);
+        if(nomes&&eu&&reg&&(!reg.dia||(reg.dia>=P0.ini&&reg.dia<=P0.fim))){ var vi=(nomes.lista||[]).filter(function(o){return o.k===eu.k})[0]; if(vi&&vi.d>0){ vi.d--; kvSet("nomes",nomes); } } }catch(e){}
+      [4000,12000,30000].forEach(function(ms){ setTimeout(function(){ carregaNomes().then(function(){ if(tela==="form") desenhaForm(); }).catch(function(){}); },ms); });
+      fila=fila.filter(function(x){return x.id!==id}); if(meusAll) meusAll=meusAll.filter(function(x){return x.id!==id}); return filaDel(id).then(function(){ desenhaLista(); desenhaFila(); if(tela==="form") desenhaForm(); }); };
     if(!noServ){ tira(); return; }   // ainda só neste celular: basta tirar daqui (se o envio já estiver a caminho, apaga também no servidor)
     if(navigator.onLine===false||!eu||!eu.tok){ alert("Para apagar um DNA que já foi enviado é preciso estar com internet."); return; }
     b.disabled=true; b.textContent="Apagando…";
