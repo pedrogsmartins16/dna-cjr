@@ -48,7 +48,8 @@ textarea{min-height:104px;resize:vertical}
 .btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:58px;border:0;border-radius:16px;background:linear-gradient(135deg,var(--navy3),var(--navy));color:#fff;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 6px 16px rgba(27,58,115,.32)}
 .btn:active{transform:scale(.985)}.btn.sec{background:#fff;color:var(--navy);border:2px solid var(--line);box-shadow:none}.btn:disabled{opacity:.55}
 .lnk{background:none;border:0;color:var(--navy3);font-weight:700;padding:8px 2px;cursor:pointer}
-.trocau{display:flex;flex-direction:column;align-items:center;gap:3px;flex:none;padding:8px 10px;border:1.5px solid var(--line);border-radius:14px;background:#fff;color:var(--navy3);font:700 11.5px/1.15 inherit;text-align:center;cursor:pointer}.trocau .ico{width:22px;height:22px}.trocau:active{background:#eef2f9}
+.trocau{flex:none;width:44px;height:44px;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:var(--bg);color:var(--fg2);cursor:pointer;transition:background .15s,color .15s}.trocau .ico{width:20px;height:20px}.trocau:active{background:#e1e7f2;color:var(--navy)}
+.eu .meta{margin-top:4px;color:var(--fg2);font-size:14.5px;font-weight:500;line-height:1.3}.eu .meta i{font-style:normal;color:var(--fg3);margin:0 7px}
 .voltar.pill{display:flex;width:100%;justify-content:center;padding:12px 14px;margin:0 0 14px;border:1.5px solid var(--line);border-radius:14px;background:#fff;font-size:15px}.voltar.pill .ico{width:20px;height:20px}
 .voltar{display:inline-flex;align-items:center;gap:6px;background:none;border:0;color:var(--navy3);font-weight:700;padding:4px 0 10px;cursor:pointer}
 /* avatares */
@@ -185,7 +186,7 @@ textarea{min-height:104px;resize:vertical}
 
   <section id="s-form" hidden>
     <div class="card">
-      <div class="eu"><div class="av m" id="eu-av">?</div><div class="t"><b id="eu-n"></b><div class="chips" id="eu-c"></div></div><button class="trocau" id="eu-sai" type="button" aria-label="Trocar de usuário"><svg class="ico"><use href="#i-troca"/></svg><span>Trocar<br>usuário</span></button></div>
+      <div class="eu"><div class="av m" id="eu-av">?</div><div class="t"><b id="eu-n"></b><div class="meta" id="eu-c"></div></div><button class="trocau" id="eu-sai" type="button" aria-label="Trocar de usuário" title="Trocar de usuário"><svg class="ico"><use href="#i-troca"/></svg></button></div>
       <div class="per" id="per"></div>
     </div>
     <div id="msg-fila" class="aviso w" hidden></div>
@@ -429,7 +430,7 @@ function desenhaForm(){
   if(!eu) return;
   $("eu-av").outerHTML=avatar("m",eu.k,eu.n).replace('class="av m','id="eu-av" class="av m');
   $("eu-n").textContent=titulo(eu.n);
-  $("eu-c").innerHTML='<span class="tag az">'+esc(eu.c==="op"?"Operador de grua":"Motorista")+'</span>'+(eu.f&&FABC[eu.f]?'<span class="tag vd">'+esc(FABC[eu.f])+'</span>':'');
+  $("eu-c").innerHTML=esc(eu.c==="op"?"Operador de grua":"Motorista")+(eu.f&&FABC[eu.f]?'<i>·</i>'+esc(FABC[eu.f]):'');
   var c=contaPeriodo(0), cumpriu=c.n>=2, pct=Math.min(100,c.n/2*100);
   $("per").innerHTML='<div class="l"><span>DNAs no período <b>'+c.P.rot+'</b></span><b>'+c.n+' · meta 2'+(cumpriu?' ✓':'')+'</b></div><div class="bar"><i style="width:'+pct+'%"></i></div>'+(c.n>2?'<div class="mais">Meta batida! Pode continuar lançando.</div>':'');
   desenhaOpcoes(); desenhaFila(); desenhaAviso(); if(!pushTentou){ pushTentou=true; assinaPush(false); }
