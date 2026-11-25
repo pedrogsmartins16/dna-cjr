@@ -1,7 +1,7 @@
 // Guarda o app no celular para abrir SEM internet e ENVIA os registros pendentes sozinho quando o sinal volta (mesmo com o app fechado).
 // Atualização na hora: com internet o app sempre busca a versão mais nova do servidor (ignora o cache do navegador);
 // sem internet (ou servidor lento, 4 s) usa a cópia guardada. Mudou o app? Troque o número de V (garante limpar o cache antigo).
-const V = "dna-v39";
+const V = "dna-v40";
 const ARQ = ["./", "index.html", "config.js", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png", "badge-dna.png", "icon-mono.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => Promise.all(ARQ.map(a => fetch(a, { cache: "no-store" }).then(r => r.ok && c.put(a, r)).catch(() => {})))).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => {
@@ -57,7 +57,15 @@ async function insistir() {
   throw erro;   // não deu: o Chrome agenda outra tentativa
 }
 // o Chrome desiste depois de algumas tentativas (lastChance): nesse caso pedimos um envio NOVO, para o celular tentar de novo quando o sinal voltar, sem precisar abrir o app
-self.addEventListener("sync", e => { if (e.tag.indexOf("dna-enviar") === 0) e.waitUntil(insistir().catch(err => { if (e.lastChance) { try { return self.registration.sync.register("dna-enviar-" + Date.now()).catch(() => {}); } catch (_) { return; } } throw err; })); });
+// o sinal voltou (o Chrome acordou o envio): avisa o colaborador. Se ainda ficou algo guardado, pede para abrir o app.
+async function avisaSinal(antes) {
+  if (!antes) return;
+  const pend = await contaPend();
+  const t = pend ? "Internet de volta: abra o aplicativo" : "DNA enviado ✓";
+  const b = pend ? "Você tem " + pend + (pend === 1 ? " DNA guardado" : " DNAs guardados") + " no celular. Entre no aplicativo para enviar ao sistema." : "O DNA que estava guardado no celular chegou ao sistema.";
+  await self.registration.showNotification(t, { body: b, icon: "icon-192.png", badge: "icon-mono.png", tag: "dna-sinal", renotify: true, silent: false, vibrate: [300, 150, 300, 150, 300], requireInteraction: !!pend });
+}
+self.addEventListener("sync", e => { if (e.tag.indexOf("dna-enviar") === 0) e.waitUntil(contaPend().then(antes => insistir().then(() => avisaSinal(antes), err => avisaSinal(antes).then(() => { throw err; }))).catch(err => { if (e.lastChance) { try { return self.registration.sync.register("dna-enviar-" + Date.now()).catch(() => {}); } catch (_) { return; } } throw err; })); });
 self.addEventListener("periodicsync", e => { if (e.tag === "dna-enviar-p") e.waitUntil(insistir().catch(() => {})); });   // 2ª via: o Chrome acorda o app de tempos em tempos
 self.addEventListener("activate", e => { e.waitUntil(tenta()); });                                        // 3ª via: sempre que o app é ativado/atualizado
 self.addEventListener("message", e => { if (e.data && e.data.dna === "tentar") e.waitUntil(tenta()); });  // 4ª via: o app pede (ex.: sinal voltou)

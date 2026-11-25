@@ -473,7 +473,7 @@ function mostraOk(){
   var pend=fila.filter(function(x){return x.st!=="e"}).length;
   $("ok-ic").className="grande"+(pend?" w":""); $("ok-ic").innerHTML=pend?icone("relogio"):icone("ok");
   $("ok-t").textContent=pend?"Salvo neste celular":"Registro enviado";
-  $("ok-s").textContent=pend?(pend+(pend===1?" registro aguarda":" registros aguardam")+" sinal de internet. Pode fechar o app: o envio é automático quando o sinal voltar."):"Obrigado! Seu DNA já chegou.";
+  $("ok-s").textContent=pend?(pend+(pend===1?" registro aguarda":" registros aguardam")+" envio. Assim que tiver internet, ENTRE NO APLICATIVO para o DNA ser enviado ao sistema. Enquanto não abrir com internet, ele não conta."):"Obrigado! Seu DNA já chegou.";
   mostra("ok"); desenhaFila();
 }
 
