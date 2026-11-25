@@ -1,8 +1,8 @@
 // Guarda o app no celular para abrir SEM internet e ENVIA os registros pendentes sozinho quando o sinal volta (mesmo com o app fechado).
 // Atualização na hora: com internet o app sempre busca a versão mais nova do servidor (ignora o cache do navegador);
 // sem internet (ou servidor lento, 4 s) usa a cópia guardada. Mudou o app? Troque o número de V (garante limpar o cache antigo).
-const V = "dna-v36";
-const ARQ = ["./", "index.html", "config.js", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png", "badge-dna.png"];
+const V = "dna-v37";
+const ARQ = ["./", "index.html", "config.js", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png", "badge-dna.png", "icon-mono.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => Promise.all(ARQ.map(a => fetch(a, { cache: "no-store" }).then(r => r.ok && c.put(a, r)).catch(() => {})))).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim()));
@@ -71,7 +71,7 @@ self.addEventListener("push", e => {
     const enviou = antes > 0 && pend === 0;
     const t = m.rec ? m.t : enviou ? "DNA enviado ✓" : pend ? "Você tem DNA guardado no celular" : (m.t || "De Olho na Área");
     const b = m.rec ? m.b : enviou ? "Os registros que estavam guardados neste celular foram enviados." : pend ? "Abra o aplicativo com internet para enviar e não perder o pagamento." : (m.b || "");
-    await self.registration.showNotification(t, { body: b, icon: "icon-192.png", badge: "badge-dna.png", tag: "dna-" + Date.now(), renotify: true, silent: false, vibrate: [300, 150, 300, 150, 300], requireInteraction: !!m.rec });
+    await self.registration.showNotification(t, { body: b, icon: "icon-192.png", badge: "icon-mono.png", tag: "dna-" + Date.now(), renotify: true, silent: false, vibrate: [300, 150, 300, 150, 300], requireInteraction: !!m.rec });
   })());
 });
 self.addEventListener("notificationclick", e => { e.notification.close(); e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(cs => cs.length ? cs[0].focus() : self.clients.openWindow("./"))); });
