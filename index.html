@@ -96,7 +96,9 @@ textarea{min-height:104px;resize:vertical}
 .reg .h{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:13.5px;color:var(--fg2)}
 .reg b{display:block;margin:6px 0 3px;font-size:16.5px}.reg p{margin:0;color:var(--fg2);font-size:15px;overflow-wrap:anywhere}
 .apg{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:12px;min-height:46px;border:1.5px solid #f0a3a6;border-radius:12px;background:#fff;color:#c11b22;font:700 15px inherit;cursor:pointer}.apg .ico{width:19px;height:19px}.apg:active{background:#fde8e9}.apg:disabled{opacity:.6}
-.chip{font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap}.chip.e{background:var(--greenbg);color:#0f6b41}.chip.p{background:var(--warnbg);color:var(--warn)}
+.chip{font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap}.chip.e{background:var(--greenbg);color:#0f6b41}.chip.p{background:var(--warnbg);color:var(--warn)}.chip.r{background:var(--redbg);color:var(--red)}
+.reg.rec{border-color:#f3b4b8}.motr{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--redbg);color:#7a1016;font-size:14.5px;overflow-wrap:anywhere}.motr u{display:block;text-decoration:none;font-weight:800;font-size:12.5px;margin-bottom:3px;color:var(--red)}
+#rec-av{position:fixed;left:12px;right:12px;top:12px;z-index:50;background:var(--red);color:#fff;border-radius:16px;padding:13px 15px;box-shadow:0 8px 24px rgba(0,0,0,.25);font-size:15px;cursor:pointer}#rec-av b{display:block;font-size:16px;margin-bottom:2px}#rec-av small{display:block;margin-top:5px;opacity:.9;font-size:12.5px}
 .sel{position:relative}.sel select{padding-right:42px;font-weight:700}.sel .ico{position:absolute;right:14px;top:50%;margin-top:-10px;color:var(--fg3);pointer-events:none}
 .res3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
 .res3 div{background:var(--bg);border-radius:14px;padding:10px 6px;text-align:center}.res3 b{display:block;font-size:22px;line-height:1.1}.res3 small{color:var(--fg2);font-size:12.5px}
@@ -495,7 +497,9 @@ function limpaAntigos(){ var corte=Date.now()-60*864e5; var velhos=fila.filter(f
 /* ---------- meus registros (com filtro de período) ---------- */
 function todosMeus(){
   var loc=fila.filter(function(x){return eu&&x.k===eu.k});
-  var srv=(meusAll||[]).filter(function(s){ return !loc.some(function(x){return x.id===s.id}); }).map(function(s){ return {id:s.id,dia:s.dia,hora:s.hora,area:s.area,local:s.local,descricao:s.descricao,ts:Date.parse(s.dia+"T"+(s.hora||"00:00"))||0,st:"e"}; });
+  var S={}; (meusAll||[]).forEach(function(s){ S[s.id]=s; });
+  loc=loc.map(function(x){ var z=S[x.id]; return z&&z.st?Object.assign({},x,{sit:z.st,mot:z.mot||""}):x; });
+  var srv=(meusAll||[]).filter(function(s){ return !loc.some(function(x){return x.id===s.id}); }).map(function(s){ return {id:s.id,dia:s.dia,hora:s.hora,area:s.area,local:s.local,descricao:s.descricao,ts:Date.parse(s.dia+"T"+(s.hora||"00:00"))||0,st:"e",sit:s.st||"",mot:s.mot||""}; });
   return loc.concat(srv);
 }
 function periodosComRegistro(){ var M={}; todosMeus().forEach(function(x){ var P=periodoDe(x.dia); if(P) M[P.ini]=P; }); return Object.keys(M).sort().reverse().map(function(k){return M[k]}); }
@@ -507,7 +511,7 @@ function desenhaLista(){
   $("l-per").innerHTML=Ls.map(function(p){return '<option value="'+p.ini+'"'+(p.ini===perSel?" selected":"")+'>'+(p.ini===cur.ini?"Período atual · ":"")+p.rot+'</option>'}).join("");
   $("l-per-w").hidden=$("l-per-lb").hidden=Ls.length<2;
   var L=todosMeus().filter(function(x){return x.dia>=P.ini&&x.dia<=P.fim}).sort(function(a,b){return (b.dia+(b.hora||""))<(a.dia+(a.hora||""))?-1:1;});
-  var n=L.length, ok=n>=2, C=2*Math.PI*70, off=C*(1-Math.min(1,n/2));
+  var n=L.filter(function(x){return x.sit!=="r"}).length, ok=n>=2, C=2*Math.PI*70, off=C*(1-Math.min(1,n/2));
   $("l-anel").className="anel"+(ok?" ok":"");
   $("l-anel").innerHTML='<svg viewBox="0 0 176 176"><circle class="tr" cx="88" cy="88" r="70"/><circle class="pr" cx="88" cy="88" r="70" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/></svg><div class="nm"><b>'+n+'</b><small>DNA'+(n===1?"":"s")+' no período</small></div>';
   $("l-rot").textContent=P.rot;
@@ -515,12 +519,27 @@ function desenhaLista(){
   var fila_p=fila.filter(function(x){return x.st!=="e"}).length;
   $("l-sub").textContent=fila_p?fila_p+(fila_p===1?" registro aguardando":" registros aguardando")+" envio":"";
   $("l-env").hidden=!fila_p||navigator.onLine===false;
-  $("l-itens").innerHTML=L.map(function(x){ return '<div class="reg"><div class="h"><span>'+esc(br(x.dia))+' · '+esc(x.hora||"")+' · '+esc(x.area||"")+'</span><span class="chip '+(x.st==="e"?"e":"p")+'">'+(x.st==="e"?"enviado":"aguardando")+'</span></div><b>'+esc(x.local||"")+'</b><p>'+esc(x.descricao||"")+'</p>'+'<button class="apg" data-del="'+esc(x.id)+'" data-env="'+(x.st==="e"?"1":"0")+'" type="button">'+icone("lixo")+'Apagar este DNA</button></div>'; }).join("");
+  $("l-itens").innerHTML=L.map(function(x){ var rc=x.sit==="r"; return '<div class="reg'+(rc?" rec":"")+'"><div class="h"><span>'+esc(br(x.dia))+' · '+esc(x.hora||"")+' · '+esc(x.area||"")+'</span><span class="chip '+(rc?"r":x.st==="e"?"e":"p")+'">'+(rc?"recusado":x.sit==="a"?"autorizado":x.st==="e"?"enviado":"aguardando")+'</span></div><b>'+esc(x.local||"")+'</b><p>'+esc(x.descricao||"")+'</p>'+(rc?'<div class="motr"><u>Recusado pelo gestor · não conta para a meta</u>'+esc(x.mot||"Sem descrição.")+'</div>':'')+'<button class="apg" data-del="'+esc(x.id)+'" data-env="'+(x.st==="e"?"1":"0")+'" type="button">'+icone("lixo")+'Apagar este DNA</button></div>'; }).join("");
 }
 function carregaMeus(){   // todos os registros da pessoa (qualquer celular): daí saem os períodos que têm lançamento
   if(!eu||!eu.tok||!URL_API||!codigo||navigator.onLine===false) return Promise.resolve();
-  return api("GET",{acao:"meus",k:eu.k,tok:eu.tok,ini:"",fim:""}).then(function(r){ if(r&&r.ok){ meusAll=r.regs||[]; if(tela==="lista") desenhaLista(); } }).catch(function(){});
+  return api("GET",{acao:"meus",k:eu.k,tok:eu.tok,ini:"",fim:""}).then(function(r){ if(r&&r.ok){ meusAll=r.regs||[]; if(tela==="lista") desenhaLista(); avisaRecusas(); } }).catch(function(){});
 }
+/* DNA recusado pelo gestor: aviso na tela + notificação do celular (uma vez por registro) */
+function avisaRecusas(){
+  if(!eu) return; var chave="rec-vistos-"+eu.k, rec=(meusAll||[]).filter(function(x){return x.st==="r"});
+  kvGet(chave).then(function(v){ var vistos=v||{}, novos=rec.filter(function(x){return !vistos[x.id]}); if(!novos.length) return;
+    var x=novos[0], tit=novos.length>1?novos.length+" DNAs recusados pelo gestor":"Seu DNA de "+br(x.dia)+" foi recusado", txt=novos.length>1?"Toque para ver os motivos.":"Motivo: "+(x.mot||"sem descrição");
+    var av=$("rec-av"); if(!av){ av=document.createElement("div"); av.id="rec-av"; av.setAttribute("role","alert"); document.body.appendChild(av); }
+    av.innerHTML="<b>"+esc(tit)+"</b>"+esc(txt)+"<small>Toque para abrir Meus registros</small>"; av.hidden=false;
+    av.onclick=function(){ av.hidden=true; abreLista(); };
+    try{ if(("Notification" in window)&&Notification.permission==="granted"&&navigator.serviceWorker) navigator.serviceWorker.ready.then(function(sw){ sw.showNotification(tit,{body:txt,icon:"icon-192.png",badge:"icon-192.png",tag:"dna-rec"}); }); }catch(e){}
+    novos.forEach(function(y){ vistos[y.id]=1; }); kvSet(chave,vistos);
+  }).catch(function(){});
+}
+setInterval(function(){ if(!document.hidden&&eu&&eu.tok) carregaMeus(); },60000);
+setTimeout(function(){ if(eu&&eu.tok) carregaMeus(); },2500);
+document.addEventListener("visibilitychange",function(){ if(!document.hidden&&eu&&eu.tok) carregaMeus(); });
 function abreLista(){ desenhaLista(); mostra("lista"); carregaMeus(); }
 
 /* ---------- instalação / sem internet ---------- */

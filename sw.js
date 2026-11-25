@@ -1,7 +1,7 @@
 // Guarda o app no celular para abrir SEM internet e ENVIA os registros pendentes sozinho quando o sinal volta (mesmo com o app fechado).
 // Atualização na hora: com internet o app sempre busca a versão mais nova do servidor (ignora o cache do navegador);
 // sem internet (ou servidor lento, 4 s) usa a cópia guardada. Mudou o app? Troque o número de V (garante limpar o cache antigo).
-const V = "dna-v34";
+const V = "dna-v35";
 const ARQ = ["./", "index.html", "config.js", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => Promise.all(ARQ.map(a => fetch(a, { cache: "no-store" }).then(r => r.ok && c.put(a, r)).catch(() => {})))).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => {
@@ -69,8 +69,8 @@ self.addEventListener("push", e => {
     let antes = 0, pend = 0;
     try { antes = await contaPend(); if (antes) { try { await enviarPendentes(); } catch (_) {} } pend = await contaPend(); } catch (_) {}
     const enviou = antes > 0 && pend === 0;
-    const t = enviou ? "DNA enviado ✓" : pend ? "Você tem DNA guardado no celular" : (m.t || "De Olho na Área");
-    const b = enviou ? "Os registros que estavam guardados neste celular foram enviados." : pend ? "Abra o aplicativo com internet para enviar e não perder o pagamento." : (m.b || "");
+    const t = m.rec ? m.t : enviou ? "DNA enviado ✓" : pend ? "Você tem DNA guardado no celular" : (m.t || "De Olho na Área");
+    const b = m.rec ? m.b : enviou ? "Os registros que estavam guardados neste celular foram enviados." : pend ? "Abra o aplicativo com internet para enviar e não perder o pagamento." : (m.b || "");
     await self.registration.showNotification(t, { body: b, icon: "icon-192.png", badge: "icon-192.png", tag: "dna" });
   })());
 });
