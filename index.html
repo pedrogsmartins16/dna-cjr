@@ -81,6 +81,8 @@ textarea{min-height:104px;resize:vertical}
 .anel .nm{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}.anel .nm b{font-size:56px;line-height:1;letter-spacing:-.03em;color:var(--navy)}.anel.ok .nm b{color:var(--green)}.anel .nm small{margin-top:6px;font-size:12px;line-height:1.2;color:var(--fg2);font-weight:600;max-width:100px;text-align:center}
 .tot-rot{font-size:15px;font-weight:700;color:var(--fg)}
 .chipmeta{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:7px 14px;border-radius:999px;font-size:13.5px;font-weight:800;background:#e8eefb;color:var(--navy)}.chipmeta.ok{background:var(--greenbg);color:#0f6b41}
+.bar.dup{display:flex;gap:2px}.bar.dup i{border-radius:0}.bar.dup i:first-child{border-radius:99px 0 0 99px}.bar.dup i.an{background:repeating-linear-gradient(135deg,#f0b54a 0 6px,#f7cf86 6px 12px)}
+.leg{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:12.5px;color:var(--fg2)}.leg span{display:inline-flex;align-items:center;gap:5px}.leg i{width:10px;height:10px;border-radius:3px;display:inline-block}.leg .ap i{background:var(--green)}.leg .an i{background:#f0b54a}
 .bar{height:10px;border-radius:99px;background:#dde3ee;overflow:hidden}.bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green),#43c98b);transition:width .35s}
 .fabl{display:flex;align-items:center;gap:12px;border:2px dashed var(--line);border-radius:14px;padding:12px 14px;background:#fafbfe}
 .fabl .ico{color:var(--navy3);width:24px;height:24px}.fabl b{display:block;font-size:15.5px;line-height:1.25}.fabl small{color:var(--fg3);font-size:12.5px}
@@ -433,8 +435,14 @@ function desenhaForm(){
   $("eu-av").outerHTML=avatar("m",eu.k,eu.n).replace('class="av m','id="eu-av" class="av m');
   $("eu-n").textContent=titulo(eu.n);
   $("eu-c").innerHTML=esc(eu.c==="op"?"Operador de grua":"Motorista")+(eu.f&&FABC[eu.f]?'<i>·</i>'+esc(FABC[eu.f]):'');
-  var c=contaPeriodo(0), cumpriu=c.n>=2, pct=Math.min(100,c.n/2*100);
-  $("per").innerHTML='<div class="l"><span>DNAs no período <b>'+c.P.rot+'</b></span><b>'+c.n+' · meta 2'+(cumpriu?' ✓':'')+'</b></div><div class="bar"><i style="width:'+pct+'%"></i></div>'+(c.n>2?'<div class="mais">Meta batida! Pode continuar lançando.</div>':'');
+  // aprovados = autorizados pelo gestor; em análise = enviados/guardados ainda sem decisão (recusados não contam)
+  if(meusAll===null&&!desenhaForm._c){ desenhaForm._c=1; var k0=eu.k; kvGet("meus-"+k0).then(function(v){ desenhaForm._c=0; if(v&&meusAll===null&&eu&&eu.k===k0){ meusAll=v; if(tela==="form") desenhaForm(); } }).catch(function(){ desenhaForm._c=0; }); }
+  var c=contaPeriodo(0), ap=(meusAll||[]).filter(function(x){ return x.st==="a"&&x.dia>=c.P.ini&&x.dia<=c.P.fim; }).length;
+  ap=Math.min(ap,c.n); var an=c.n-ap, cumpriu=ap>=2, pA=Math.min(100,ap/2*100), pN=Math.min(100-pA,an/2*100);
+  $("per").innerHTML='<div class="l"><span>DNAs no período <b>'+c.P.rot+'</b></span><b>'+ap+' aprovado'+(ap===1?'':'s')+' · meta 2'+(cumpriu?' ✓':'')+'</b></div>'+
+    '<div class="bar dup"><i style="width:'+pA+'%"></i><i class="an" style="width:'+pN+'%"></i></div>'+
+    '<div class="leg"><span class="ap"><i></i>'+ap+' aprovado'+(ap===1?'':'s')+'</span><span class="an"><i></i>'+an+' em análise</span></div>'+
+    (cumpriu?(ap>2?'<div class="mais">Meta batida! Pode continuar lançando.</div>':'<div class="mais">Meta batida com DNAs aprovados ✓</div>'):(an&&ap+an>=2?'<div class="mais" style="color:var(--warn)">Você já lançou o suficiente; falta o gestor aprovar.</div>':''));
   desenhaOpcoes(); desenhaFila(); desenhaAviso(); if(!pushTentou){ pushTentou=true; assinaPush(false); }
   if(!fotos[eu.k]) fotoDe(eu.k).then(function(f){ if(f&&eu){ kvSet("fotos",fotos); if(tela==="form") $("eu-av").outerHTML=avatar("m",eu.k,eu.n).replace('class="av m','id="eu-av" class="av m'); } });
 }
@@ -523,7 +531,7 @@ function desenhaLista(){
 }
 function carregaMeus(){   // todos os registros da pessoa (qualquer celular): daí saem os períodos que têm lançamento
   if(!eu||!eu.tok||!URL_API||!codigo||navigator.onLine===false) return Promise.resolve();
-  return api("GET",{acao:"meus",k:eu.k,tok:eu.tok,ini:"",fim:""}).then(function(r){ if(r&&r.ok){ meusAll=r.regs||[]; if(tela==="lista") desenhaLista(); avisaRecusas(); } }).catch(function(){});
+  return api("GET",{acao:"meus",k:eu.k,tok:eu.tok,ini:"",fim:""}).then(function(r){ if(r&&r.ok){ meusAll=r.regs||[]; kvSet("meus-"+eu.k,meusAll); if(tela==="lista") desenhaLista(); if(tela==="form") desenhaForm(); avisaRecusas(); } }).catch(function(){});
 }
 /* DNA recusado pelo gestor: aviso na tela + notificação do celular (uma vez por registro) */
 function avisaRecusas(){
