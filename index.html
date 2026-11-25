@@ -533,7 +533,7 @@ function avisaRecusas(){
     var av=$("rec-av"); if(!av){ av=document.createElement("div"); av.id="rec-av"; av.setAttribute("role","alert"); document.body.appendChild(av); }
     av.innerHTML="<b>"+esc(tit)+"</b>"+esc(txt)+"<small>Toque para abrir Meus registros</small>"; av.hidden=false;
     av.onclick=function(){ av.hidden=true; abreLista(); };
-    try{ if(("Notification" in window)&&Notification.permission==="granted"&&navigator.serviceWorker) navigator.serviceWorker.ready.then(function(sw){ sw.showNotification(tit,{body:txt,icon:"icon-192.png",badge:"icon-192.png",tag:"dna-rec"}); }); }catch(e){}
+    try{ if(("Notification" in window)&&Notification.permission==="granted"&&navigator.serviceWorker) navigator.serviceWorker.ready.then(function(sw){ sw.showNotification(tit,{body:txt,icon:"icon-192.png",badge:"badge-dna.png",tag:"dna-rec-"+Date.now(),renotify:true,silent:false,vibrate:[300,150,300,150,300],requireInteraction:true}); }); }catch(e){}
     novos.forEach(function(y){ vistos[y.id]=1; }); kvSet(chave,vistos);
   }).catch(function(){});
 }
